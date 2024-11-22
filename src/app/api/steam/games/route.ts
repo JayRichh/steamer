@@ -16,7 +16,13 @@ async function getGameNews(appId: number): Promise<any[]> {
         appid: appId.toString(),
         count: "5",
         maxlength: "300",
-      })
+      }),
+      {
+        next: { 
+          revalidate: 3600, // Cache news for 1 hour
+          tags: [`game-${appId}-news`]
+        }
+      }
     );
 
     if (!response.ok) return [];
@@ -35,7 +41,13 @@ async function getGameAchievements(steamId: string, appId: number): Promise<any[
       getSteamApiUrl("achievements", {
         appid: appId.toString(),
         steamid: steamId,
-      })
+      }),
+      {
+        next: { 
+          revalidate: 1800, // Cache achievements for 30 minutes
+          tags: [`game-${appId}-achievements`, `user-${steamId}-achievements`]
+        }
+      }
     );
 
     if (!response.ok) return [];
@@ -77,7 +89,12 @@ export async function GET(request: NextRequest) {
         include_appinfo: "1",
         include_played_free_games: "1",
       }),
-      { next: { revalidate: 300 } } // Cache for 5 minutes
+      { 
+        next: { 
+          revalidate: 300, // Cache for 5 minutes
+          tags: [`user-${steamId}-games`]
+        }
+      }
     );
 
     if (!gamesResponse.ok) {
@@ -126,14 +143,32 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    // Calculate cache duration based on whether details are included
+    const cacheDuration = includeDetails ? 300 : 600; // 5 or 10 minutes
+
+    // Create response with appropriate cache headers
+    const response = NextResponse.json({
       success: true,
       games,
       total_count: games.length,
     });
+
+    // Set cache control headers
+    response.headers.set(
+      'Cache-Control',
+      `s-maxage=${cacheDuration}, stale-while-revalidate`
+    );
+
+    // Set cache tag header for Vercel or similar edge caching
+    response.headers.set(
+      'x-cache-tags',
+      `user-${steamId}-games${includeDetails ? ',user-games-details' : ''}`
+    );
+
+    return response;
   } catch (error) {
     console.error("Games API error:", error);
-    return NextResponse.json(
+    const errorResponse = NextResponse.json(
       {
         success: false,
         error: "Failed to fetch games",
@@ -143,5 +178,10 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     );
+
+    // Set no-cache for error responses
+    errorResponse.headers.set('Cache-Control', 'no-store');
+    
+    return errorResponse;
   }
 }

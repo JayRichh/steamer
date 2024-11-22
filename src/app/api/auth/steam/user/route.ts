@@ -12,7 +12,15 @@ export async function GET(request: NextRequest) {
       if (config.isDev) {
         console.log("No steam_session cookie found");
       }
-      return NextResponse.json({ isLoggedIn: false }, { status: 401 });
+      const response = NextResponse.json(
+        { 
+          success: false,
+          isLoggedIn: false 
+        }, 
+        { status: 401 }
+      );
+      response.headers.set('Cache-Control', 'no-store');
+      return response;
     }
 
     try {
@@ -27,16 +35,25 @@ export async function GET(request: NextRequest) {
           steamId: userData.steamid,
         });
         
-        // In development, just return the session data without calling Steam API
-        return NextResponse.json({
+        // In development, return session data with no caching
+        const devResponse = NextResponse.json({
+          success: true,
           isLoggedIn: true,
           user: userData,
         });
+        devResponse.headers.set('Cache-Control', 'no-store');
+        return devResponse;
       }
 
       // Production: Get fresh user data from Steam API
       const response = await fetch(
-        `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${config.steam.apiKey}&steamids=${userData.steamid}`
+        `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${config.steam.apiKey}&steamids=${userData.steamid}`,
+        {
+          next: { 
+            revalidate: 300, // Cache Steam API response for 5 minutes
+            tags: [`steam-user-${userData.steamid}`]
+          }
+        }
       );
 
       if (!response.ok) {
@@ -52,6 +69,7 @@ export async function GET(request: NextRequest) {
 
       // Update session with fresh data
       const updatedResponse = NextResponse.json({
+        success: true,
         isLoggedIn: true,
         user: freshUserData,
       });
@@ -65,13 +83,32 @@ export async function GET(request: NextRequest) {
         httpOnly: true,
       });
 
+      // Set cache headers
+      updatedResponse.headers.set(
+        'Cache-Control',
+        's-maxage=300, stale-while-revalidate=600'
+      );
+
+      // Set cache tags for edge caching
+      updatedResponse.headers.set(
+        'x-cache-tags',
+        `steam-user,steam-user-${userData.steamid}`
+      );
+
       return updatedResponse;
     } catch (error) {
       // Invalid session data
       console.error("Invalid session data:", error);
 
       // Clear invalid session cookie
-      const response = NextResponse.json({ isLoggedIn: false }, { status: 401 });
+      const response = NextResponse.json(
+        { 
+          success: false,
+          isLoggedIn: false 
+        }, 
+        { status: 401 }
+      );
+      
       response.cookies.set("steam_session", "", {
         expires: new Date(0),
         path: "/",
@@ -80,16 +117,25 @@ export async function GET(request: NextRequest) {
         httpOnly: true,
       });
 
+      // No caching for error responses
+      response.headers.set('Cache-Control', 'no-store');
+      
       return response;
     }
   } catch (error) {
     console.error("Error getting user data:", error);
-    return NextResponse.json(
+    const errorResponse = NextResponse.json(
       {
+        success: false,
         error: "Failed to get user data",
         details: config.isDev ? (error as Error).message : undefined,
       },
       { status: 500 }
     );
+
+    // No caching for error responses
+    errorResponse.headers.set('Cache-Control', 'no-store');
+    
+    return errorResponse;
   }
 }
