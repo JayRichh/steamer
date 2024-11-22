@@ -140,6 +140,10 @@ function EditorContent() {
             selectable={true}
             selectedIds={editor.selectedScreenshots.map((s) => s.id)}
             onSelect={editor.toggleScreenshot}
+            currentPage={editor.currentPage}
+            totalPages={editor.totalPages}
+            onPageChange={editor.handlePageChange}
+            _totalCount={editor.totalCount}
           />
         </div>
       )}

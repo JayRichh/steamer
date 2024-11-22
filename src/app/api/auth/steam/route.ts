@@ -4,7 +4,12 @@ import { config } from "~/config/env";
 
 export async function GET(_request: NextRequest) {
   try {
-    // Generate OpenID parameters for Steam login
+    // In development, redirect to dev auth endpoint
+    if (config.isDev) {
+      return NextResponse.redirect(new URL("/api/auth/steam/dev", config.app.url));
+    }
+
+    // Production Steam login flow
     const params = new URLSearchParams({
       "openid.ns": "http://specs.openid.net/auth/2.0",
       "openid.mode": "checkid_setup",

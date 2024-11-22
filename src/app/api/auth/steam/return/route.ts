@@ -64,8 +64,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Create response with redirect
-    const response = NextResponse.redirect(new URL("/steam", config.app.url));
+    // Always use the app URL for redirects (this will be localhost in dev, prod URL in prod)
+    const redirectUrl = new URL("/steam", config.app.url);
+    const response = NextResponse.redirect(redirectUrl);
 
     // Set session cookie with user data
     response.cookies.set("steam_session", JSON.stringify(userData), {
@@ -80,8 +81,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Steam auth return error:", error);
 
-    // Clear any existing session
-    const response = NextResponse.redirect(new URL("/steam?error=auth_failed", config.app.url));
+    // Clear any existing session and redirect to error page
+    const redirectUrl = new URL("/steam", config.app.url);
+    redirectUrl.searchParams.set("error", "auth_failed");
+    
+    const response = NextResponse.redirect(redirectUrl);
     response.cookies.set("steam_session", "", {
       expires: new Date(0),
       path: "/",
@@ -92,12 +96,9 @@ export async function GET(request: NextRequest) {
 
     // Add error details to URL if in development
     if (config.isDev) {
-      const errorUrl = new URL("/steam", config.app.url);
-      errorUrl.searchParams.set("error", "auth_failed");
-      errorUrl.searchParams.set("details", (error as Error).message);
-      return NextResponse.redirect(errorUrl);
+      redirectUrl.searchParams.set("details", (error as Error).message);
     }
 
-    return response;
+    return NextResponse.redirect(redirectUrl);
   }
 }

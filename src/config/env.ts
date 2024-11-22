@@ -54,6 +54,9 @@ export const STEAM_VISIBILITY = {
   PUBLIC: 2,
 } as const;
 
+// Use production URLs for Steam API even in development
+const PROD_URL = "https://steamshare.net";
+
 export const config = {
   env: process.env.NODE_ENV || "development",
   isDev: process.env.NODE_ENV === "development",
@@ -67,11 +70,13 @@ export const config = {
   steam: {
     apiKey: getEnvVar("STEAM_API_KEY"),
     communityToken: getEnvVar("STEAM_COMMUNITY_TOKEN"),
+    // Use production URLs for Steam API configuration
     get realm() {
-      return getEnvVar("NEXT_PUBLIC_APP_URL");
+      return PROD_URL;
     },
     get returnUrl() {
-      return `${getEnvVar("NEXT_PUBLIC_APP_URL")}/api/auth/steam/return`;
+      // Use production URL for Steam API configuration
+      return `${PROD_URL}/api/auth/steam/return`;
     },
     openIdUrl: "https://steamcommunity.com/openid",
     endpoints: STEAM_API_ENDPOINTS,

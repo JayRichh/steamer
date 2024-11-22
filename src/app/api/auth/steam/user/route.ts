@@ -26,9 +26,15 @@ export async function GET(request: NextRequest) {
           username: userData.personaname,
           steamId: userData.steamid,
         });
+        
+        // In development, just return the session data without calling Steam API
+        return NextResponse.json({
+          isLoggedIn: true,
+          user: userData,
+        });
       }
 
-      // Get fresh user data from Steam API
+      // Production: Get fresh user data from Steam API
       const response = await fetch(
         `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${config.steam.apiKey}&steamids=${userData.steamid}`
       );
