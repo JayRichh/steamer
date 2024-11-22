@@ -2,115 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Override Prism.js theme styles */
-pre[class*="language-"],
-code[class*="language-"] {
-  text-shadow: none !important;
-  background: none !important;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace !important;
-  font-size: 0.875rem !important;
-  line-height: 1.5 !important;
-  tab-size: 2 !important;
-}
-
-/* Water text effect */
-.water-char {
-  --water-intensity: 0;
-  --water-angle: 0;
-  transform: translate(0, 0);
-  transition: all 0.2s ease-out;
-  display: inline-block;
-}
-
-.group:hover .water-char {
-  color: hsl(var(--primary));
-}
-
-.group:hover .water-char:hover {
-  transform: translate(
-    calc(var(--water-intensity) * 10px * cos(var(--water-angle))),
-    calc(var(--water-intensity) * 10px * sin(var(--water-angle)))
-  );
-}
-
 @layer base {
   :root {
-    /* Base colors with refined neutrals - Enhanced contrast */
-    --background: 35 30% 98%; /* Warm white */
-    --background-secondary: 35 25% 92%; /* Darker soft warm gray for better contrast */
-    --foreground: 35 25% 10%; /* Even darker warm gray for maximum contrast */
-    --foreground-secondary: 35 15% 25%; /* Darker medium warm gray */
-    --border: 35 20% 75%; /* Higher contrast border */
-    --border-secondary: 35 20% 70%; /* Higher contrast secondary border */
+    /* Base colors - Light mode */
+    --background: 240 20% 98%;
+    --background-secondary: 240 20% 96%;
+    --foreground: 222 47% 11%;
+    --foreground-secondary: 217 33% 17%;
+    --muted: 210 40% 93%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Brand colors - warm terra with increased contrast */
-    --brand: 28 60% 45%;
+    /* Brand colors - Gaming theme */
+    --brand: 262 83% 58%;
+    --brand-foreground: 210 40% 98%;
 
-    /* Primary colors - high contrast warm brown */
-    --primary: 28 75% 35%;
-    --primary-foreground: 35 30% 98%;
+    /* Primary colors */
+    --primary: 262 83% 58%;
+    --primary-foreground: 210 40% 98%;
 
-    /* Accent colors - high contrast soft purple */
-    --accent: 250 65% 45%;
-    --accent-foreground: 35 30% 98%;
+    /* Secondary colors */
+    --secondary: 217 92% 49%;
+    --secondary-foreground: 210 40% 98%;
 
-    /* Secondary colors - high contrast muted terra */
-    --secondary: 28 55% 40%;
-    --secondary-foreground: 35 30% 98%;
+    /* Accent colors */
+    --accent: 316 70% 43%;
+    --accent-foreground: 210 40% 98%;
 
-    /* Success colors - high contrast muted sage */
-    --success: 145 55% 35%;
-    --success-foreground: 35 30% 98%;
+    /* Highlight colors */
+    --highlight: 35 92% 65%;
+    --highlight-foreground: 222 47% 11%;
 
-    /* Warning colors - high contrast warm amber */
-    --warning: 35 90% 45%;
-    --warning-foreground: 35 25% 10%;
+    /* Success colors */
+    --success: 142 72% 29%;
+    --success-foreground: 210 40% 98%;
 
-    /* Error colors - high contrast muted coral */
-    --error: 0 75% 40%;
-    --error-foreground: 35 30% 98%;
+    /* Warning colors */
+    --warning: 35 92% 65%;
+    --warning-foreground: 222 47% 11%;
 
-    /* Surface colors with increased contrast */
-    --surface: 35 30% 98%;
-    --surface-foreground: 35 25% 10%;
+    /* Error colors */
+    --error: 0 84% 60%;
+    --error-foreground: 210 40% 98%;
+
+    /* Border colors */
+    --border: 214.3 31.8% 91.4%;
+    --ring: 222 47% 11%;
 
     /* Border radius */
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
 
   .dark {
-    /* Dark mode with enhanced contrast */
-    --background: 28 25% 8%;
-    --background-secondary: 28 25% 12%;
-    --foreground: 35 15% 98%;
-    --foreground-secondary: 35 15% 90%;
-    --border: 28 20% 30%;
-    --border-secondary: 28 20% 35%;
+    /* Base colors - Dark mode */
+    --background: 222 47% 11%;
+    --background-secondary: 217 33% 17%;
+    --foreground: 210 40% 98%;
+    --foreground-secondary: 215 20.2% 65.1%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --brand: 28 60% 70%;
+    /* Brand colors - Gaming theme */
+    --brand: 262 83% 68%;
+    --brand-foreground: 222 47% 11%;
 
-    /* Dark mode colors with enhanced contrast */
-    --primary: 28 65% 75%;
-    --primary-foreground: 28 25% 8%;
+    /* Primary colors */
+    --primary: 262 83% 68%;
+    --primary-foreground: 222 47% 11%;
 
-    --accent: 250 55% 75%;
-    --accent-foreground: 28 25% 8%;
+    /* Secondary colors */
+    --secondary: 217 92% 59%;
+    --secondary-foreground: 222 47% 11%;
 
-    --secondary: 28 55% 70%;
-    --secondary-foreground: 28 25% 8%;
+    /* Accent colors */
+    --accent: 316 70% 53%;
+    --accent-foreground: 222 47% 11%;
 
-    --success: 145 55% 60%;
-    --success-foreground: 28 25% 8%;
+    /* Highlight colors */
+    --highlight: 35 92% 65%;
+    --highlight-foreground: 222 47% 11%;
 
-    --warning: 35 90% 70%;
-    --warning-foreground: 28 25% 8%;
+    /* Success colors */
+    --success: 142 72% 39%;
+    --success-foreground: 222 47% 11%;
 
-    --error: 0 65% 70%;
-    --error-foreground: 28 25% 8%;
+    /* Warning colors */
+    --warning: 35 92% 65%;
+    --warning-foreground: 222 47% 11%;
 
-    --surface: 28 25% 8%;
-    --surface-foreground: 35 15% 98%;
+    /* Error colors */
+    --error: 0 84% 70%;
+    --error-foreground: 222 47% 11%;
+
+    /* Border colors */
+    --border: 217 33% 17%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
@@ -119,37 +104,48 @@ code[class*="language-"] {
     @apply border-border;
   }
 
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.02em;
   }
 
-  :focus-visible {
-    @apply outline-none ring-2 ring-primary/70 ring-offset-2;
+  /* Modern Gaming Typography Scale */
+  h1, .h1 {
+    @apply text-4xl md:text-5xl lg:text-7xl font-black tracking-tighter;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
   }
 
-  ::-webkit-scrollbar {
-    @apply h-2 w-2;
+  h2, .h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
   }
 
-  ::-webkit-scrollbar-track {
-    @apply bg-background-secondary;
+  h3, .h3 {
+    @apply text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight;
+    line-height: 1;
+    letter-spacing: -0.02em;
   }
 
-  ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-foreground/25 transition-colors hover:bg-foreground/35;
-  }
-}
-
-@layer utilities {
-  .glass {
-    @apply border border-border/50 bg-background/95 shadow-lg backdrop-blur-md backdrop-saturate-150;
+  h4, .h4 {
+    @apply text-xl md:text-2xl lg:text-3xl font-bold tracking-tight;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
   }
 
-  .glass-hover {
-    @apply hover:bg-background/98 transition-all duration-200 hover:border-border/70 hover:shadow-xl;
+  p {
+    @apply text-base md:text-lg font-medium leading-relaxed;
+    letter-spacing: -0.01em;
+    max-width: 65ch;
   }
 
   .text-balance {
@@ -160,70 +156,78 @@ code[class*="language-"] {
     text-wrap: pretty;
   }
 
+  pre, code {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/70 ring-offset-2;
+  }
+
+  ::-webkit-scrollbar {
+    @apply h-1.5 w-1.5;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-foreground/30 transition-colors hover:bg-foreground/40;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply border border-border/50 bg-background/95 shadow-lg backdrop-blur-md backdrop-saturate-150;
+  }
+
+  .glass-hover {
+    @apply hover:bg-background/[0.98] transition-all duration-200 hover:border-border/70 hover:shadow-xl;
+  }
+
   .text-gradient {
-    @apply bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-gradient;
   }
 
   .transition-smooth {
     @apply transition-all duration-300 ease-in-out;
   }
 
-  .animate-shimmer {
-    @apply relative overflow-hidden;
-  }
-
-  .animate-shimmer::after {
-    @apply absolute inset-0 -translate-x-full;
-    background-image: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(212, 163, 115, 0.15) 20%,
-      rgba(212, 163, 115, 0.2) 60%,
-      transparent 100%
-    );
-    animation: shimmer 2s infinite;
-    content: "";
-  }
-
   .animate-gradient {
-    animation: gradient 15s ease infinite;
-    background-size: 200% 200%;
+    animation: gradient 8s ease infinite;
+    background-size: 300% 300%;
   }
-}
 
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
+  .bg-gradient-radial {
+    background-image: radial-gradient(circle at center, var(--tw-gradient-from) 0%, var(--tw-gradient-to) 100%);
+  }
+
+  .bg-grid-light {
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .bg-grid-dark {
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
   }
 }
 
 @keyframes gradient {
   0% {
     background-position: 0% 50%;
+    filter: hue-rotate(0deg);
   }
   50% {
     background-position: 100% 50%;
+    filter: hue-rotate(10deg);
   }
   100% {
     background-position: 0% 50%;
+    filter: hue-rotate(0deg);
   }
 }
 
 @layer components {
-  .input-range {
-    @apply h-2 w-full cursor-pointer appearance-none rounded-lg bg-background-secondary;
-  }
-
-  .input-range::-webkit-slider-thumb {
-    @apply h-4 w-4 appearance-none rounded-full bg-primary;
-    @apply hover:bg-primary/90 focus:ring-2 focus:ring-primary/50 focus:ring-offset-2;
-  }
-
-  .input-range::-moz-range-thumb {
-    @apply h-4 w-4 appearance-none rounded-full border-0 bg-primary;
-    @apply hover:bg-primary/90 focus:ring-2 focus:ring-primary/50 focus:ring-offset-2;
-  }
-
   .btn-primary {
     @apply bg-primary text-primary-foreground hover:bg-primary/95;
   }
@@ -232,30 +236,15 @@ code[class*="language-"] {
     @apply bg-secondary text-secondary-foreground hover:bg-secondary/95;
   }
 
+  .btn-accent {
+    @apply bg-accent text-accent-foreground hover:bg-accent/95;
+  }
+
+  .btn-highlight {
+    @apply bg-highlight text-highlight-foreground hover:bg-highlight/95;
+  }
+
   .btn-ghost {
-    @apply text-foreground hover:bg-background-secondary/80;
+    @apply text-foreground hover:bg-muted;
   }
-}
-
-@keyframes progress-stripe {
-  0% {
-    background-position: 1rem 0;
-  }
-  100% {
-    background-position: 0 0;
-  }
-}
-
-.progress-striped {
-  background-image: linear-gradient(
-    45deg,
-    rgba(212, 163, 115, 0.25) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(212, 163, 115, 0.25) 50%,
-    rgba(212, 163, 115, 0.25) 75%,
-    transparent 75%,
-    transparent
-  );
-  background-size: 1rem 1rem;
 }
