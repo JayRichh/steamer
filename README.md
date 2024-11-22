@@ -12,7 +12,7 @@ Features seamless Steam authentication, real-time friend activity, and advanced 
 - **Canvas Editor** - Professional editing tools powered by Fabric.js
 - **Friend System** - View and interact with Steam friends' content
 
-![image](https://github.com/user-attachments/assets/5c6d815f-eed2-4f71-b7fd-4c04dce958ab)
+![image](https://github.com/user-attachments/assets/225ededf-a19c-444a-8593-74493304258e)
 
 ## Project Structure
 
