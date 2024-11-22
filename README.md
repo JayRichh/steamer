@@ -4,7 +4,6 @@ Steam screenshot management platform with integrated gallery organization and ca
 
 Features seamless Steam authentication, real-time friend activity, and advanced collage creation tools.
 
-[Visit SteamShare Here!](https://steamshare.net).
 
 ## Core Features
 
@@ -42,7 +41,9 @@ src/
 - **UI** - Lucide Icons, CVA
 - **Dev Tools** - TypeScript, ESLint, Prettier
 
-![image](https://github.com/user-attachments/assets/8c57b392-2fb4-476c-9f3c-5af4210f2c44)
+![image](https://github.com/user-attachments/assets/a4e473d7-0387-4d8a-9ac3-9036f577430d)
+
+![image](https://github.com/user-attachments/assets/77590cd8-6ccd-47e0-be80-24d9839e73c6)
 
 ## Development
 
@@ -50,6 +51,9 @@ src/
 npm install
 npm run dev
 ```
+
+![image](https://github.com/user-attachments/assets/4ab793f3-eabb-4426-9f1c-996000a735ab)
+
 
 Requires `STEAM_API_KEY` in `.env.local`
 
