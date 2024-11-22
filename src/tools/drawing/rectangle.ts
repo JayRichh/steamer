@@ -66,7 +66,7 @@ const rectangleTool: Tool = {
     canvas.requestRenderAll();
   },
 
-  handleMouseUp: (canvas: Canvas, event: IEvent) => {
+  handleMouseUp: (canvas: Canvas, _event: IEvent) => {
     drawingState.isDrawing = false;
     if (drawingState.currentObject) {
       // Make the rectangle selectable and evented again

@@ -26,7 +26,7 @@ const imageTool = {
       const canvasWidth = canvas.width || 800;
       const canvasHeight = canvas.height || 600;
       const imgAspectRatio = imgElement.width / imgElement.height;
-      const canvasAspectRatio = canvasWidth / canvasHeight;
+      // const canvasAspectRatio = canvasWidth / canvasHeight;
 
       let finalWidth = canvasWidth * 0.8; // 80% of canvas width
       let finalHeight = finalWidth / imgAspectRatio;

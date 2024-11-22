@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { config } from "~/config/env";
 import type { SteamUser } from "~/types/steam";
-
-import { validateSteamSession } from "../user/route";
+import { validateSteamSession } from "~/utils/steam";
 
 async function getSteamUserData(steamId: string): Promise<SteamUser | null> {
   try {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { config } from "~/config/env";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Generate OpenID parameters for Steam login
     const params = new URLSearchParams({
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Create response with expired cookie to handle logout
     const response = NextResponse.json({ success: true });

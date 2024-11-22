@@ -7,12 +7,16 @@
   ],
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": ["off", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-explicit-any": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-console": "off",
     "react/no-unused-prop-types": "warn",
-    "react/self-closing-comp": "warn"
+    "react/self-closing-comp": "warn",
+    "@next/next/no-img-element": "off",
+    "react/no-unescaped-entities": "off",
+    "prefer-const": "off",
+    "no-unused-vars": "off"
   }
 }

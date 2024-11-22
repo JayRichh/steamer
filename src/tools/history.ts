@@ -84,7 +84,6 @@ class HistoryManager {
       await Promise.all(
         state.objects.map(async (objData) => {
           return new Promise<void>((resolve) => {
-            // @ts-ignore - fabric.js types are incomplete
             window.fabric.util.enlivenObjects(
               [objData],
               (enlivenedObjects: FabricObject[]) => {

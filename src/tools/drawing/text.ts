@@ -31,11 +31,11 @@ const textTool: Tool = {
     canvas.requestRenderAll();
   },
 
-  handleMouseMove: (canvas: Canvas, event: IEvent) => {
+  handleMouseMove: (_canvas: Canvas, _event: IEvent) => {
     // No specific action needed for text tool mouse move
   },
 
-  handleMouseUp: (canvas: Canvas, event: IEvent) => {
+  handleMouseUp: (_canvas: Canvas, _event: IEvent) => {
     // No specific action needed for text tool mouse up
   },
 

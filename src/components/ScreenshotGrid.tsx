@@ -11,7 +11,7 @@ import type { SteamScreenshot } from "~/types/steam";
 interface ScreenshotGridProps {
   screenshots: SteamScreenshot[];
   isLoading?: boolean;
-  totalCount?: number;
+  _totalCount?: number;
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
@@ -27,7 +27,7 @@ interface ScreenshotGridProps {
 export function ScreenshotGrid({
   screenshots,
   isLoading,
-  totalCount = 0,
+  _totalCount = 0,
   currentPage = 1,
   totalPages = 1,
   onPageChange,
@@ -53,7 +53,7 @@ export function ScreenshotGrid({
   };
 
   const renderPagination = () => {
-    const pages = [];
+    let pages = [];
     let startPage = Math.max(1, currentPage - 2);
     let endPage = Math.min(totalPages, startPage + 4);
 
@@ -156,7 +156,7 @@ export function ScreenshotGrid({
             <Progress
               value={loadingProgress.loaded}
               max={loadingProgress.total}
-              showLabel
+              showValue
               className="mb-4"
             />
             <Text className="text-center text-sm text-gray-600 dark:text-gray-400">
@@ -254,7 +254,7 @@ export function ScreenshotGrid({
             <Progress
               value={loadingProgress.loaded}
               max={loadingProgress.total}
-              showLabel
+              showValue
               className="max-w-xs mx-auto"
             />
           </div>

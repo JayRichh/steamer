@@ -9,10 +9,10 @@ import { Button } from "~/components/ui/Button";
 import { Spinner } from "~/components/ui/Spinner";
 import { Tooltip } from "~/components/ui/Tooltip";
 
-import { useHeaderScroll } from "~/hooks/useHeaderScroll";
+// import { useHeaderScroll } from "~/hooks/useHeaderScroll";
 
 import type { SteamPersonaState, SteamUser } from "~/types/steam";
-import { STEAM_PERSONA_STATES, getPersonaStateColor, getPersonaStateText } from "~/types/steam";
+import { STEAM_PERSONA_STATES, getPersonaStateColor } from "~/types/steam";
 
 const navigation = [
   { name: "Home", href: "/" },

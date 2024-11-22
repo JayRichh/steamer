@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { validateSteamSession } from "~/app/api/auth/steam/user/route";
+import { validateSteamSession } from "~/utils/steam";
+
 import { config, getSteamApiUrl } from "~/config/env";
 import type { SteamScreenshot, SteamScreenshotsResponse } from "~/types/steam";
 

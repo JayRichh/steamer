@@ -10,7 +10,7 @@ import { ScreenshotGrid } from "~/components/ScreenshotGrid";
 import { Button } from "~/components/ui/Button";
 import { Card } from "~/components/ui/Card";
 import { Container } from "~/components/ui/Container";
-import { Progress } from "~/components/ui/Progress";
+// import { Progress } from "~/components/ui/Progress";
 import { Spinner } from "~/components/ui/Spinner";
 import { Text } from "~/components/ui/Text";
 
@@ -245,7 +245,7 @@ function DashboardContent() {
                 <ScreenshotGrid
                   screenshots={screenshots}
                   isLoading={isLoadingScreenshots}
-                  totalCount={totalScreenshots}
+                  _totalCount={totalScreenshots}
                   currentPage={screenshotsPage}
                   totalPages={totalScreenshotPages}
                   onPageChange={handleScreenshotsPageChange}

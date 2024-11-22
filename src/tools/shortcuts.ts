@@ -15,12 +15,12 @@ export const createShortcutHandlers = (
   setCurrentTool: (tool: ToolName) => void
 ): ShortcutHandlers => ({
   // Tool Selection
-  v: (canvas) => setCurrentTool("select"),
-  r: (canvas) => setCurrentTool("rectangle"),
-  c: (canvas) => setCurrentTool("circle"),
-  l: (canvas) => setCurrentTool("line"),
-  t: (canvas) => setCurrentTool("text"),
-  b: (canvas) => setCurrentTool("brush"),
+  v: (_canvas) => setCurrentTool("select"),
+  r: (_canvas) => setCurrentTool("rectangle"),
+  c: (_canvas) => setCurrentTool("circle"),
+  l: (_canvas) => setCurrentTool("line"),
+  t: (_canvas) => setCurrentTool("text"),
+  b: (_canvas) => setCurrentTool("brush"),
 
   // Delete
   Delete: (canvas) => manipulationTools.delete(canvas),
@@ -164,7 +164,9 @@ export const shortcutsList = [
   { key: "Ctrl/⌘ + Home/End", description: "Bring to front/Send to back" },
 ];
 
-export default {
+const shortcuts = {
   setupKeyboardShortcuts,
   shortcutsList,
 };
+
+export default shortcuts;

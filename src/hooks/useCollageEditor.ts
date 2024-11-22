@@ -51,7 +51,7 @@ export function useCollageEditor() {
     if (state.currentStep === "select" && state.availableScreenshots.length === 0) {
       fetchScreenshots();
     }
-  }, [state.currentStep]);
+  }, [state.currentStep, state.availableScreenshots.length]);
 
   const setStep = useCallback((step: EditorStep) => {
     setState((prev) => ({ ...prev, currentStep: step }));

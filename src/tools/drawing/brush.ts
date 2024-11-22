@@ -1,4 +1,4 @@
-import { Canvas, Path, util } from "fabric";
+import { Canvas, Path } from "fabric";
 
 import type { IEvent, Tool } from "~/types/tools";
 
@@ -88,7 +88,7 @@ const brushTool: Tool = {
     canvas.renderAll();
   },
 
-  handleMouseUp(canvas: Canvas, event: IEvent) {
+  handleMouseUp(canvas: Canvas, _event: IEvent) {
     if (!brushState.isDrawing || !brushState.path) return;
 
     brushState.isDrawing = false;

@@ -104,7 +104,7 @@ export function useCollageStorage(user: SteamUser | null) {
             setSavedCollages(reduced);
             setError(null);
             return newCollage;
-          } catch (finalError) {
+          } catch (_finalError) {
             throw new Error("Storage full: Please delete some existing collages");
           }
         }

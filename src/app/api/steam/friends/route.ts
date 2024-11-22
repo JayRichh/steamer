@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { validateSteamSession } from "~/app/api/auth/steam/user/route";
+import { validateSteamSession } from "~/utils/steam";
 import { config } from "~/config/env";
 import type { SteamFriend, SteamFriendsResponse, SteamUser } from "~/types/steam";
 

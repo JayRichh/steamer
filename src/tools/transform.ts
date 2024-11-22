@@ -1,4 +1,4 @@
-import { Canvas, Object as FabricObject } from "fabric";
+import { Canvas } from "fabric";
 
 export const transformTools = {
   /**

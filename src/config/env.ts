@@ -114,7 +114,7 @@ export function validateEnv() {
   try {
     new URL(config.app.url);
     new URL(config.app.apiUrl);
-  } catch (error) {
+  } catch (_) {
     throw new Error("Invalid URL in environment configuration");
   }
 }

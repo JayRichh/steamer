@@ -2,7 +2,7 @@
 
 import { Object as FabricObject } from "fabric";
 
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useRef, useState } from "react";
 
 interface ObjectContextType {
   selectedObject: FabricObject | null;

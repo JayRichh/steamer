@@ -8,14 +8,14 @@ import { AuthProtection } from "~/components/AuthProtection";
 import { Button } from "~/components/ui/Button";
 import { Card } from "~/components/ui/Card";
 import { Container } from "~/components/ui/Container";
-import { Spinner } from "~/components/ui/Spinner";
+// import { Spinner } from "~/components/ui/Spinner";
 import { Text } from "~/components/ui/Text";
 
 import type { SteamGame, SteamPersonaState, SteamUser } from "~/types/steam";
 import { STEAM_PERSONA_STATES, getPersonaStateColor, getPersonaStateText } from "~/types/steam";
 
 function ProfileContent() {
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
   const [steamUser, setSteamUser] = useState<SteamUser | null>(null);
   const [recentGames, setRecentGames] = useState<SteamGame[]>([]);
   const [isLoadingGames, setIsLoadingGames] = useState(false);

@@ -7,19 +7,19 @@ import {
   FlipHorizontal,
   FlipVertical,
   Group,
-  Lock,
+  // Lock,
   Minus,
   MousePointer2,
   MoveHorizontal,
   MoveVertical,
   Pen,
-  RotateCw,
+  // RotateCw,
   Sliders,
   Square,
   Trash2,
   Type,
   Ungroup,
-  Unlock,
+  // Unlock,
 } from "lucide-react";
 
 import React from "react";

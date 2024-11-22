@@ -29,7 +29,7 @@ const selectTool: Tool = {
     }
   },
 
-  handleMouseUp: (canvas: Canvas, event: IEvent) => {
+  handleMouseUp: (_canvas: Canvas, _event: IEvent) => {
     // No specific action needed on mouse up for selection
   },
 
