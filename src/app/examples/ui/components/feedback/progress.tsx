@@ -6,7 +6,7 @@ import { Progress } from "~/components/ui/Progress";
 
 import { ComponentExample } from "../types";
 
-export const progressCode = `import { Progress } from '~/components/ui/Progress';
+export const progressCode = `import { Progress } from &apos;~/components/ui/Progress&apos;;
 
 export function ProgressExample() {
   const [progress, setProgress] = useState(0);

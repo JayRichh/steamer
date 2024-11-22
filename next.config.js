@@ -72,7 +72,6 @@ const nextConfig = {
         ]
       },
       {
-        // Vercel Edge Network caching
         source: '/api/:path*',
         headers: [
           {
@@ -98,12 +97,47 @@ const nextConfig = {
     ];
   },
 
-  // Prefetching configuration
-  onDemandEntries: {
-    // Period (in ms) where the server will keep pages in the buffer
-    maxInactiveAge: 60 * 1000,
-    // Number of pages that should be kept simultaneously without being disposed
-    pagesBufferLength: 5,
+  // Production build configuration
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      // Exclude example pages from production build
+      config.module.rules.push({
+        test: /\.(js|jsx|ts|tsx)$/,
+        exclude: [
+          /node_modules/,
+          /src\/app\/examples/,
+          /src\/app\/three/
+        ],
+      });
+
+      // Optimize CSS
+      config.optimization.splitChunks.cacheGroups.styles = {
+        name: 'styles',
+        test: /\.(css|scss)$/,
+        chunks: 'all',
+        enforce: true,
+      };
+    }
+    return config;
+  },
+
+  // Exclude paths from production
+  async redirects() {
+    if (process.env.NODE_ENV === 'production') {
+      return [
+        {
+          source: '/examples/:path*',
+          destination: '/404',
+          permanent: true,
+        },
+        {
+          source: '/three/:path*',
+          destination: '/404',
+          permanent: true,
+        }
+      ];
+    }
+    return [];
   }
 };
 
