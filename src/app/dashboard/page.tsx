@@ -260,7 +260,7 @@ function DashboardContent() {
                       <Card className="p-6 text-center col-span-full">
                         <Text className="mb-4">No friends found</Text>
                         <Text className="text-sm text-gray-600 dark:text-gray-400">
-                          Your friends list might be private or you haven't added any friends yet.
+                          Your friends list might be private or you haven&apos;t added any friends yet.
                         </Text>
                       </Card>
                     ) : (

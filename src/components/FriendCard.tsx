@@ -113,7 +113,7 @@ export function FriendCard({ friend }: FriendCardProps) {
         <Modal isOpen={true} onClose={() => setShowScreenshots(false)} className="max-w-7xl">
           <div className="p-4">
             <div className="flex items-center justify-between mb-6">
-              <Text variant="h2">{friend.personaname}'s Screenshots</Text>
+              <Text variant="h2">{friend.personaname}&apos;s Screenshots</Text>
               <Button onClick={() => setShowScreenshots(false)} variant="secondary">
                 Close
               </Button>
