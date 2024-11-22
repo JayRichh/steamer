@@ -1,6 +1,10 @@
 # SteamShare
 
-Steam screenshot management and editing platform built with Next.js 14. Created using [next-temploot](https://github.com/JayRichh/next-temploot).
+Steam screenshot management platform with integrated gallery organization and canvas editing. Built with Next.js 14 and created using [next-temploot](https://github.com/JayRichh/next-temploot). 
+
+Features seamless Steam authentication, real-time friend activity, and advanced collage creation tools.
+
+[Visit SteamShare Here!](https://steamshare.net).
 
 ## Core Features
 
