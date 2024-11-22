@@ -34,14 +34,14 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           />
 
           {/* Modal */}
@@ -50,13 +50,13 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
+            className="relative w-full max-h-[90vh] overflow-y-auto mx-4"
           >
             <div
               className={cn(
                 "bg-background/95 backdrop-blur-md",
                 "rounded-xl shadow-xl border-2 border-border/50",
-                "w-full max-w-lg p-6",
+                "w-full max-w-lg mx-auto p-6",
                 className
               )}
             >
@@ -74,7 +74,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
               {children}
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );

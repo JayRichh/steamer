@@ -1,116 +1,127 @@
-# Next.js Three.js Tailwind Template
+# Steamer
 
-A modern, full-featured template for rapidly building web applications. Pre-configured with TypeScript, Three.js, Tailwind CSS, and more to eliminate boilerplate setup and get coding faster.
-
-
-![image](https://github.com/user-attachments/assets/e912b63c-4ff3-497c-b90a-24c6766cb0e4)
-![image](https://github.com/user-attachments/assets/717960fe-6811-4621-9f3b-e9201c2f840a)
-
-
-## Core Technologies
-
-- Next.js 15.0.3 (App Router)
-- TypeScript 5
-- Three.js 0.170.0 + React Three Fiber 8
-- Tailwind CSS 3.4.1
-- Framer Motion 11
-
-![image](https://github.com/user-attachments/assets/4e86010d-f88a-4e43-a388-ec54746f8fd0)
-
-## Setup
-
-```bash
-git clone https://github.com/JayRichh/next-template
-cd next-template
-npm install
-npm run dev
-```
-
-## Project Structure
-
-```
-src/
-├── app/                    # Next.js app directory
-│   ├── examples/          # Example implementations
-│   │   ├── 3d/           # Three.js examples
-│   │   ├── ui/           # UI component examples
-│   │   └── theme/        # Theme examples
-│   ├── three/            # Three.js setup
-│   └── api/              # API routes
-├── components/
-│   └── ui/               # Reusable UI components
-├── hooks/                # Custom React hooks
-├── services/             # API services
-├── types/                # TypeScript definitions
-└── utils/               # Utility functions
-```
-
-![image](https://github.com/user-attachments/assets/3acd0a7e-3415-4b07-a16d-e8522874879a)
+A Next.js application for managing and displaying Steam screenshots and friends.
 
 ## Features
 
-### UI Components
+- Steam OpenID Authentication
+- Screenshot Gallery
+- Friends List with Real-time Status
+- Responsive Dashboard
+- Dark Mode Support
 
-- Form elements with validation (react-hook-form + zod)
-- Data display (Badge, Card, Tooltip)
-- Layout (Accordion, Modal, Tabs)
-- Feedback (Progress, Spinner, Toast)
-- Effects (Gradient backgrounds, animations)
+## Environment Setup
 
-### Three.js Integration
+The application uses different environment configurations for development and production:
 
-- Scene management with React Three Fiber
-- Physics integration (Rapier3D)
-- Material showcases
-- Interactive examples
-- Morph animations
+### Development
 
-### Development Tools
+Create `.env.local` for local development:
 
-- TypeScript configuration
-- ESLint with strict rules
-- Prettier with import sorting
-- Hot module replacement
-- Monaco code editor integration
+```env
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+STEAM_API_KEY=your_steam_api_key
+NODE_ENV=development
+```
 
-![image](https://github.com/user-attachments/assets/eb1375a2-0654-4c88-bcfd-2460cdb01e56)
+### Production
 
-## Configuration
+Set up environment variables in your hosting platform (e.g., Vercel):
 
-### Next.js
+```env
+NEXT_PUBLIC_APP_URL=https://steamer.vercel.app
+NEXT_PUBLIC_API_URL=https://steamer.vercel.app/api
+STEAM_API_KEY=your_steam_api_key
+NODE_ENV=production
+```
 
-- Configured for Three.js integration
-- App Router setup
-- API routes enabled
-- Strict mode enabled
-- Webpack optimizations for canvas
+## Getting Started
 
-### Tailwind CSS
-
-- Custom color schemes with HSL variables
-- Dark mode support
-- Geist font integration
-- Custom animations
-- Gradient utilities
-- Container queries
-
-### TypeScript
-
-- Strict type checking
-- Path aliases configured
-- Type definitions for Three.js
-- Custom type utilities
-
-## Available Scripts
+1. Install dependencies:
 
 ```bash
-npm run dev          # Development server
-npm run build        # Production build
-npm run start        # Production server
-npm run lint         # ESLint
-npm run format       # Prettier formatting
+npm install
 ```
+
+2. Run the development server:
+
+```bash
+npm run dev
+```
+
+3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Features Overview
+
+### Steam Authentication
+
+- Secure OpenID authentication with Steam
+- Session management with HTTP-only cookies
+- Automatic environment URL handling
+
+### Dashboard
+
+- View and manage Steam screenshots
+- See friends list with real-time status
+- View friend's current game status
+- Quick access to Steam profiles
+
+### Screenshots
+
+- View all your Steam screenshots
+- Full-size image viewing
+- Screenshot details including date and game
+- Responsive grid layout
+
+### Friends List
+
+- Real-time friend status
+- Current game information
+- Profile links
+- Status indicators
+- Friend since date
+
+## API Routes
+
+- `/api/auth/steam` - Steam authentication
+- `/api/auth/steam/return` - Authentication callback
+- `/api/auth/steam/user` - Current user data
+- `/api/steam/screenshots` - User screenshots
+- `/api/steam/friends` - Friends list
+
+## Development
+
+### Project Structure
+
+```
+src/
+  ├── app/              # Next.js app router
+  │   ├── api/         # API routes
+  │   ├── dashboard/   # Dashboard page
+  │   └── steam/      # Steam profile page
+  ├── components/      # React components
+  ├── config/         # Configuration
+  ├── hooks/          # Custom hooks
+  ├── services/       # API services
+  ├── types/          # TypeScript types
+  └── utils/          # Utility functions
+```
+
+### Key Components
+
+- `FriendCard`: Displays friend information and status
+- `Navigation`: Main navigation with Steam login
+- `Dashboard`: Main dashboard with screenshots and friends
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 
-MIT
+MIT License - feel free to use this project as a template for your own Steam integration.

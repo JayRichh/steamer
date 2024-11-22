@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
+import { Footer } from "~/components/Footer";
 import { Navigation } from "~/components/Navigation";
 import { GradientBackground } from "~/components/ui/GradientBackground";
 import { Spinner } from "~/components/ui/Spinner";
@@ -24,8 +25,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Next.js Template",
-  description: "Minimal Next.js template with TypeScript, Tailwind, and Framer Motion",
+  title: "SteamShare - Your Steam Screenshot Manager",
+  description:
+    "Capture, organize, and share your gaming memories with SteamShare, the ultimate Steam screenshot management tool.",
 };
 
 function NavigationLoading() {
@@ -68,64 +70,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         {/* Footer */}
-        <footer className="relative z-10 bg-background/80 backdrop-blur-sm border-t border-border/50">
-          <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Left column */}
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-4">Next.js Template</h3>
-                <p className="text-sm text-foreground-secondary">
-                  A minimal, type-safe template for building modern web applications.
-                </p>
-              </div>
-
-              {/* Middle column */}
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-4">Features</h3>
-                <ul className="space-y-2 text-sm text-foreground-secondary">
-                  <li>TypeScript</li>
-                  <li>Tailwind CSS</li>
-                  <li>Framer Motion</li>
-                  <li>Three.js</li>
-                </ul>
-              </div>
-
-              {/* Right column */}
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-4">Links</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <a
-                      href="https://nextjs.org"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-foreground-secondary hover:text-primary transition-colors duration-200"
-                    >
-                      Next.js Documentation
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://threejs.org"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-foreground-secondary hover:text-primary transition-colors duration-200"
-                    >
-                      Three.js
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-8 border-t border-border/50">
-              <p className="text-center text-sm text-foreground-secondary">
-                © {new Date().getFullYear()} Next.js Template. Built with Next.js, TypeScript, and
-                Three.js.
-              </p>
-            </div>
-          </div>
-        </footer>
+        <Suspense>
+          <Footer />
+        </Suspense>
       </body>
     </html>
   );

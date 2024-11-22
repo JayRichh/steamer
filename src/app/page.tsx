@@ -1,116 +1,59 @@
-import Link from "next/link";
-
-import { Badge } from "~/components/ui/Badge";
-import { Button } from "~/components/ui/Button";
-import { Card, CardContent } from "~/components/ui/Card";
+import { Card } from "~/components/ui/Card";
 import { Container } from "~/components/ui/Container";
+import { GradientBackground } from "~/components/ui/GradientBackground";
 import { Text } from "~/components/ui/Text";
 
 export default function HomePage() {
   return (
     <Container>
-      <div className="relative py-20 space-y-12">
-        {/* Hero section */}
-        <div className="space-y-6 text-center">
-          <Text variant="h1" className="max-w-3xl mx-auto text-foreground">
-            Next.js Template with TypeScript and Three.js
+      <div className="flex flex-col items-center justify-center min-h-screen py-12">
+        <GradientBackground className="absolute inset-0 -z-10" />
+
+        <div className="text-center max-w-3xl mx-auto">
+          <Text variant="h1" className="mb-6">
+            Your Steam Experience, Enhanced
           </Text>
-          <Text variant="body-lg" className="text-foreground-secondary max-w-2xl mx-auto">
-            A modern, performant template featuring Next.js 14, TypeScript, Tailwind CSS, Framer
-            Motion, and Three.js. Built with best practices and latest features for optimal
-            development experience.
+          <Text className="text-xl mb-12 text-gray-600 dark:text-gray-300">
+            Connect with Steam to explore your gaming world in a new way. View screenshots, track
+            friends, and see your gaming activity all in one place.
           </Text>
-          <div className="flex items-center justify-center gap-4 pt-4">
-            <Link href="/examples/ui">
-              <Button variant="primary" size="lg">
-                Get Started
-              </Button>
-            </Link>
-            <Link href="/examples">
-              <Button variant="secondary" size="lg">
-                View Examples
-              </Button>
-            </Link>
-          </div>
         </div>
 
-        {/* Tech versions */}
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <Badge variant="secondary" size="md">
-            Next.js 15.0.3
-          </Badge>
-          <Badge variant="secondary" size="md">
-            React 18.2.0
-          </Badge>
-          <Badge variant="secondary" size="md">
-            TypeScript 5
-          </Badge>
-          <Badge variant="secondary" size="md">
-            Three.js 0.170.0
-          </Badge>
-          <Badge variant="secondary" size="md">
-            Tailwind CSS 3.4.1
-          </Badge>
-          <Badge variant="secondary" size="md">
-            Framer Motion 11.11.17
-          </Badge>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mt-8">
+          <Card className="p-6">
+            <Text variant="h3" className="mb-4">
+              Screenshot Gallery
+            </Text>
+            <Text>
+              Browse and organize your Steam screenshots in a beautiful gallery. Share your gaming
+              moments easily.
+            </Text>
+          </Card>
+
+          <Card className="p-6">
+            <Text variant="h3" className="mb-4">
+              Friend Activity
+            </Text>
+            <Text>
+              See what your friends are playing in real-time. Track their gaming status and current
+              activities.
+            </Text>
+          </Card>
+
+          <Card className="p-6">
+            <Text variant="h3" className="mb-4">
+              Gaming Stats
+            </Text>
+            <Text>Track your recent games and playtime. Get insights into your gaming habits.</Text>
+          </Card>
         </div>
 
-        {/* Features grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <Text variant="h3">Type-Safe</Text>
-              <Text variant="body" className="text-foreground-secondary">
-                Built with TypeScript for enhanced developer experience and code reliability.
-              </Text>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <Text variant="h3">Modern Stack</Text>
-              <Text variant="body" className="text-foreground-secondary">
-                Latest Next.js 14 features including server components, streaming, and more.
-              </Text>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <Text variant="h3">3D Ready</Text>
-              <Text variant="body" className="text-foreground-secondary">
-                Integrated Three.js setup for creating immersive 3D experiences on the web.
-              </Text>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <Text variant="h3">UI Components</Text>
-              <Text variant="body" className="text-foreground-secondary">
-                Reusable components built with Tailwind CSS and Framer Motion animations.
-              </Text>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <Text variant="h3">Dark Mode</Text>
-              <Text variant="body" className="text-foreground-secondary">
-                Built-in dark mode support with smooth transitions and system preference detection.
-              </Text>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <Text variant="h3">Best Practices</Text>
-              <Text variant="body" className="text-foreground-secondary">
-                Follows modern web development best practices and coding standards.
-              </Text>
-            </CardContent>
-          </Card>
+        <div className="mt-16 text-center">
+          <Text className="text-gray-500 dark:text-gray-400 mb-4">Powered by Steam Web API</Text>
+          <Text className="text-sm text-gray-400 dark:text-gray-500">
+            Login with your Steam account to get started. Your data is securely handled through
+            Steam's official authentication.
+          </Text>
         </div>
       </div>
     </Container>
