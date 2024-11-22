@@ -36,6 +36,10 @@ src/
 - **UI** - Lucide Icons, CVA
 - **Dev Tools** - TypeScript, ESLint, Prettier
 
+![image](https://github.com/user-attachments/assets/8c57b392-2fb4-476c-9f3c-5af4210f2c44)
+
+![image](https://github.com/user-attachments/assets/cb3584dc-2750-4ef6-b2db-ae69a9850cf6)
+
 ## Development
 
 ```bash
