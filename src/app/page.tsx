@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { Button } from "~/components/ui/Button";
 import { Card } from "~/components/ui/Card";
 import { PageContainer, PageSection, PageTitle, PageDescription, PageSubtitle } from "~/components/PageContainer";
 
@@ -116,10 +118,25 @@ export default function HomePage() {
               Level Up Your Gaming Experience
             </PageSubtitle>
             
-            <PageDescription>
+            <PageDescription className="mb-12">
               Transform your Steam profile into a stunning showcase. Create beautiful galleries,
               track achievements, and gain insights into your gaming journey - all in one place.
             </PageDescription>
+
+            <motion.div
+              variants={fadeInUp}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link href="/about">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90 text-white font-bold px-8 py-3"
+                >
+                  Learn More
+                </Button>
+              </Link>
+            </motion.div>
           </motion.div>
 
           {/* Feature Cards */}

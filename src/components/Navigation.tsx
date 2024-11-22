@@ -13,6 +13,7 @@ import { STEAM_PERSONA_STATES, getPersonaStateColor } from "~/types/steam";
 
 const navigation = [
   { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
   { name: "Dashboard", href: "/dashboard", requiresAuth: true },
   { name: "Editor", href: "/editor", requiresAuth: true },
   { name: "Profile", href: "/steam", requiresAuth: true },

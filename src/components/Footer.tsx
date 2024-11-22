@@ -40,6 +40,14 @@ export function Footer() {
               >
                 Screenshot Editor
               </Link>
+              <a
+                href="https://github.com/jayrichh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+              >
+                GitHub
+              </a>
             </div>
           </div>
 
