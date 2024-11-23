@@ -60,22 +60,27 @@ export function Navigation() {
         throw new Error(data.message || "Unable to log out. Please try again.");
       }
       
-      // Clear all client-side state
+      // Clear client-side state
       setSteamUser(null);
       setIsLoggedIn(false);
       
-      // Clear any localStorage/sessionStorage data
-      localStorage.clear();
-      sessionStorage.clear();
+      // Revalidate all auth-related paths
+      router.refresh(); // Refresh current route
       
-      // Clear Next.js router cache
-      router.refresh();
+      // Revalidate auth-dependent routes
+      await Promise.all([
+        fetch('/api/auth/steam/user', { method: 'HEAD' }), // Revalidate user endpoint
+        fetch('/api/steam/games', { method: 'HEAD' }), // Revalidate games
+        fetch('/api/steam/friends', { method: 'HEAD' }), // Revalidate friends
+      ]);
       
-      // Wait briefly for state to clear
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Navigate to home page
+      router.push('/');
       
-      // Redirect and force reload
-      window.location.replace("/");
+      // Force a full router refresh after navigation
+      setTimeout(() => {
+        router.refresh();
+      }, 0);
       
     } catch (error) {
       console.error("Logout failed:", error);
