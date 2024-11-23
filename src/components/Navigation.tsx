@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "~/components/ui/Button";
 import { Spinner } from "~/components/ui/Spinner";
 import { Tooltip } from "~/components/ui/Tooltip";
@@ -25,6 +25,7 @@ export function Navigation() {
   const [error, setError] = useState<string | null>(null);
   const [steamUser, setSteamUser] = useState<SteamUser | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -63,16 +64,21 @@ export function Navigation() {
       setSteamUser(null);
       setIsLoggedIn(false);
       
-      // Clear any localStorage data if it exists
+      // Clear any localStorage/sessionStorage data
       localStorage.clear();
+      sessionStorage.clear();
       
-      // Force a complete page reload and navigate home
+      // Clear Next.js router cache
+      router.refresh();
+      
+      // Add meta refresh to force complete page reload
+      const meta = document.createElement('meta');
+      meta.httpEquiv = 'refresh';
+      meta.content = '0';
+      document.head.appendChild(meta);
+      
+      // Navigate home with cache-busting query
       window.location.href = "/?reload=" + Date.now();
-      
-      // Force cache revalidation by reloading after a brief delay
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
       
     } catch (error) {
       console.error("Logout failed:", error);
