@@ -58,9 +58,22 @@ export function Navigation() {
         const data = await response.json();
         throw new Error(data.message || "Unable to log out. Please try again.");
       }
+      
+      // Clear all client-side state
       setSteamUser(null);
       setIsLoggedIn(false);
-      window.location.href = "/";
+      
+      // Clear any localStorage data if it exists
+      localStorage.clear();
+      
+      // Force a complete page reload and navigate home
+      window.location.href = "/?reload=" + Date.now();
+      
+      // Force cache revalidation by reloading after a brief delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+      
     } catch (error) {
       console.error("Logout failed:", error);
       setError(error instanceof Error ? error.message : "Failed to log out");
