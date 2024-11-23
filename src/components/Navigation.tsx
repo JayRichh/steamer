@@ -71,14 +71,11 @@ export function Navigation() {
       // Clear Next.js router cache
       router.refresh();
       
-      // Add meta refresh to force complete page reload
-      const meta = document.createElement('meta');
-      meta.httpEquiv = 'refresh';
-      meta.content = '0';
-      document.head.appendChild(meta);
+      // Wait briefly for state to clear
+      await new Promise(resolve => setTimeout(resolve, 50));
       
-      // Navigate home with cache-busting query
-      window.location.href = "/?reload=" + Date.now();
+      // Redirect and force reload
+      window.location.replace("/");
       
     } catch (error) {
       console.error("Logout failed:", error);
