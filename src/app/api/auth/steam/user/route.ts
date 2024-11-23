@@ -4,6 +4,9 @@ import { config } from "~/config/env";
 import { validateSteamSession } from "~/utils/steam";
 import type { SteamUser } from "~/types/steam";
 
+export const dynamic = 'force-dynamic'; // Disable static optimization
+export const fetchCache = 'force-no-store'; // Disable fetch caching
+
 export async function GET(request: NextRequest) {
   try {
     const sessionCookie = request.cookies.get("steam_session");
@@ -19,7 +22,7 @@ export async function GET(request: NextRequest) {
         }, 
         { status: 401 }
       );
-      response.headers.set('Cache-Control', 'no-store');
+      response.headers.set('Cache-Control', 'no-store, must-revalidate');
       return response;
     }
 
@@ -41,19 +44,14 @@ export async function GET(request: NextRequest) {
           isLoggedIn: true,
           user: userData,
         });
-        devResponse.headers.set('Cache-Control', 'no-store');
+        devResponse.headers.set('Cache-Control', 'no-store, must-revalidate');
         return devResponse;
       }
 
       // Production: Get fresh user data from Steam API
       const response = await fetch(
         `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${config.steam.apiKey}&steamids=${userData.steamid}`,
-        {
-          next: { 
-            revalidate: 300, // Cache Steam API response for 5 minutes
-            tags: [`steam-user-${userData.steamid}`]
-          }
-        }
+        { cache: 'no-store' }
       );
 
       if (!response.ok) {
@@ -83,17 +81,8 @@ export async function GET(request: NextRequest) {
         httpOnly: true,
       });
 
-      // Set cache headers
-      updatedResponse.headers.set(
-        'Cache-Control',
-        's-maxage=300, stale-while-revalidate=600'
-      );
-
-      // Set cache tags for edge caching
-      updatedResponse.headers.set(
-        'x-cache-tags',
-        `steam-user,steam-user-${userData.steamid}`
-      );
+      // Ensure no caching
+      updatedResponse.headers.set('Cache-Control', 'no-store, must-revalidate');
 
       return updatedResponse;
     } catch (error) {
@@ -118,7 +107,7 @@ export async function GET(request: NextRequest) {
       });
 
       // No caching for error responses
-      response.headers.set('Cache-Control', 'no-store');
+      response.headers.set('Cache-Control', 'no-store, must-revalidate');
       
       return response;
     }
@@ -134,7 +123,7 @@ export async function GET(request: NextRequest) {
     );
 
     // No caching for error responses
-    errorResponse.headers.set('Cache-Control', 'no-store');
+    errorResponse.headers.set('Cache-Control', 'no-store, must-revalidate');
     
     return errorResponse;
   }

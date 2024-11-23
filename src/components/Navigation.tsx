@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { Button } from "~/components/ui/Button";
 import { Spinner } from "~/components/ui/Spinner";
 import { Tooltip } from "~/components/ui/Tooltip";
@@ -31,7 +32,12 @@ export function Navigation() {
     const checkLoginStatus = async () => {
       try {
         setError(null);
-        const response = await fetch("/api/auth/steam/user");
+        const response = await fetch("/api/auth/steam/user", {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
         const data = await response.json();
 
         if (response.ok && data.isLoggedIn) {
@@ -54,7 +60,14 @@ export function Navigation() {
   const handleLogout = async () => {
     try {
       setError(null);
-      const response = await fetch("/api/auth/steam", { method: "POST" });
+      const response = await fetch("/api/auth/steam", { 
+        method: "POST",
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || "Unable to log out. Please try again.");
@@ -64,23 +77,31 @@ export function Navigation() {
       setSteamUser(null);
       setIsLoggedIn(false);
       
-      // Revalidate all auth-related paths
-      router.refresh(); // Refresh current route
+      // Revalidate all auth-dependent paths
+      await fetch('/api/revalidate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paths: [
+            '/',
+            '/dashboard',
+            '/editor',
+            '/steam',
+            '/api/auth/steam/user',
+            '/api/steam/games',
+            '/api/steam/friends'
+          ]
+        })
+      });
       
-      // Revalidate auth-dependent routes
-      await Promise.all([
-        fetch('/api/auth/steam/user', { method: 'HEAD' }), // Revalidate user endpoint
-        fetch('/api/steam/games', { method: 'HEAD' }), // Revalidate games
-        fetch('/api/steam/friends', { method: 'HEAD' }), // Revalidate friends
-      ]);
-      
-      // Navigate to home page
+      // Navigate to home page and force a full router refresh
       router.push('/');
+      router.refresh();
       
-      // Force a full router refresh after navigation
-      setTimeout(() => {
-        router.refresh();
-      }, 0);
+      // Force a complete page reload after navigation
+      window.location.reload();
       
     } catch (error) {
       console.error("Logout failed:", error);
