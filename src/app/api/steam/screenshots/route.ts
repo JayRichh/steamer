@@ -56,16 +56,19 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Fetch screenshots using GetUserFiles with parameters for full details
+    // Calculate the start index for pagination
+    const startIndex = (page - 1) * limit;
+
+    // Fetch screenshots using GetUserFiles with parameters for the current page
     const params = new URLSearchParams({
       key: config.steam.apiKey,
       steamid: steamId,
       appid: "0", // All apps
-      numperpage: "1000", // Maximum items per page
+      numperpage: String(limit), // Use the page limit instead of 1000
       filetype: "4", // Screenshots file type
       return_vote_data: "true",
       return_tags: "true",
-      return_kv_tags: "true", // Get key-value tags for additional metadata
+      return_kv_tags: "true",
       return_previews: "true",
       return_children: "false",
       return_short_description: "true",
@@ -73,11 +76,12 @@ export async function GET(request: NextRequest) {
       return_metadata: "true",
       strip_description_bbcode: "true",
       required_kv_tags: "{}",
-      creator_appid: "0", // All apps
+      creator_appid: "0",
       match_cloud_filename: "",
       admin_query: "false",
-      return_details: "true", // Get full details
-      get_full_file_url: "true", // Ensure we get full file URLs
+      return_details: "true",
+      get_full_file_url: "true",
+      startindex: String(startIndex), // Add startindex for proper pagination
     });
 
     const apiUrl = `https://api.steampowered.com/IPublishedFileService/GetUserFiles/v1/?${params.toString()}`;
@@ -99,12 +103,13 @@ export async function GET(request: NextRequest) {
       throw new Error("Invalid API response structure");
     }
 
-    // Get the files array from the correct path
+    // Get the files array and total count
     const files = data.response.publishedfiledetails || [];
-    console.log(`Found ${files.length} files`);
+    const totalCount = data.response.total || files.length;
+    console.log(`Found ${files.length} files for page ${page}`);
 
     // Transform the response to match our type
-    const allScreenshots = files
+    const screenshots = files
       .filter((file: any) => {
         const url = file.url || file.file_url || file.preview_url;
         const isValidUrl = url && url.includes("steamuserimages-a.akamaihd.net/ugc/");
@@ -150,23 +155,13 @@ export async function GET(request: NextRequest) {
         return screenshot;
       });
 
-    // Sort by creation time, newest first
-    allScreenshots.sort(
-      (a: SteamScreenshot, b: SteamScreenshot) => b.creation_time - a.creation_time
-    );
-
-    // Calculate pagination
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const screenshots = allScreenshots.slice(startIndex, endIndex);
-
     const result: SteamScreenshotsResponse = {
       success: true,
       screenshots,
-      total_count: allScreenshots.length,
+      total_count: totalCount,
       page,
       limit,
-      total_pages: Math.ceil(allScreenshots.length / limit),
+      total_pages: Math.ceil(totalCount / limit),
     };
 
     console.log(`Successfully mapped ${screenshots.length} screenshots for page ${page}`);
