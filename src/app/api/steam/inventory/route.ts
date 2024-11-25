@@ -46,9 +46,6 @@ interface SteamDescription {
   }>;
 }
 
-// Clean up icon URLs by removing /economy/ prefix if present
-const cleanIconUrl = (url: string) => url.replace(/^\/economy\//, '');
-
 // Type guard to ensure we have a valid inventory item
 function isValidInventoryItem(item: Partial<SteamInventoryItem>): item is SteamInventoryItem {
   return !!(
@@ -142,13 +139,8 @@ export async function GET(request: NextRequest) {
           assetid: asset.assetid,
           amount: asset.amount,
           contextid: asset.contextid,
-          icon_url: cleanIconUrl(description.icon_url),
           market_hash_name: encodeURIComponent(description.market_hash_name),
         };
-
-        if (description.icon_url_large) {
-          item.icon_url_large = cleanIconUrl(description.icon_url_large);
-        }
 
         return isValidInventoryItem(item) ? item : null;
       })

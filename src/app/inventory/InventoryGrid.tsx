@@ -73,8 +73,13 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
     setImageError((prev) => ({ ...prev, [assetId]: true }));
   };
 
-  const getImageUrl = (iconUrl: string) => {
-    return `https://community.akamai.steamstatic.com/images/${iconUrl}`;
+  const getImageUrl = (iconUrl: string, size: string = "96x96f") => {
+    return `https://community.fastly.steamstatic.com/economy/image/${iconUrl}/${size}`;
+  };
+
+  const getRarityBorder = (item: SteamInventoryItem) => {
+    if (!item.name_color) return "border-border/50";
+    return `border-[#${item.name_color}]`;
   };
 
   const gridSizeClass = {
@@ -230,7 +235,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
           {items.map((item) => (
             <Card
               key={item.assetid}
-              className="overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02]"
+              className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border-2 ${getRarityBorder(item)}`}
               onClick={() => setSelectedItem(item)}
             >
               <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
@@ -241,6 +246,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
                     fill
                     className="object-contain p-4"
                     onError={() => handleImageError(item.assetid)}
+                    unoptimized
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -274,20 +280,29 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
         {totalPages > 1 && renderPagination()}
       </div>
 
-      {selectedItem && (
-        <Modal
-          isOpen={true}
-          onClose={() => setSelectedItem(null)}
-          title={selectedItem.name}
-          className="w-full max-w-4xl"
-        >
+      <Modal
+        isOpen={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+        className={`w-full max-w-4xl bg-background/95 p-6 border-2 ${selectedItem ? getRarityBorder(selectedItem) : ''}`}
+      >
+        {selectedItem && (
           <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <Text 
+                variant="h3"
+                style={{ color: selectedItem.name_color ? `#${selectedItem.name_color}` : undefined }}
+              >
+                {selectedItem.name}
+              </Text>
+            </div>
+
             <div className="relative aspect-square max-w-md mx-auto">
               <Image
-                src={getImageUrl(selectedItem.icon_url_large || selectedItem.icon_url)}
+                src={getImageUrl(selectedItem.icon_url_large || selectedItem.icon_url, "512x512")}
                 alt={selectedItem.name}
                 fill
                 className="object-contain p-4"
+                unoptimized
               />
             </div>
 
@@ -322,8 +337,8 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
               </div>
             </div>
           </div>
-        </Modal>
-      )}
+        )}
+      </Modal>
     </>
   );
 }
