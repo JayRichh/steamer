@@ -9,6 +9,7 @@ import { Button } from "~/components/ui/Button";
 import { Modal } from "~/components/ui/Modal";
 import { Progress } from "~/components/ui/Progress";
 import { Slider } from "~/components/ui/Slider";
+import { Select } from "~/components/ui/Select";
 import type { SteamInventoryItem } from "~/types/steam";
 
 interface InventoryGridProps {
@@ -16,6 +17,8 @@ interface InventoryGridProps {
   page?: number;
   appId?: string;
 }
+
+type SortOption = "name" | "rarity" | "type";
 
 export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGridProps) {
   const router = useRouter();
@@ -27,6 +30,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
   const [selectedItem, setSelectedItem] = useState<SteamInventoryItem | null>(null);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
   const [gridSize, setGridSize] = useState(4); // Default to 4 columns
+  const [sortBy, setSortBy] = useState<SortOption>("rarity");
 
   const fetchItems = useCallback(async () => {
     try {
@@ -57,9 +61,10 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
     }
   }, [steamId, page, appId]);
 
+  // Refetch when appId changes
   useEffect(() => {
     fetchItems();
-  }, [fetchItems]);
+  }, [fetchItems, appId]);
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams();
@@ -79,7 +84,32 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
 
   const getRarityBorder = (item: SteamInventoryItem) => {
     if (!item.name_color) return "border-border/50";
-    return `border-[#${item.name_color}]`;
+    // Add opacity to make colors more visible
+    return `border-[#${item.name_color}] border-opacity-70`;
+  };
+
+  const getRarityTextColor = (color?: string) => {
+    if (!color) return undefined;
+    // Add opacity to make text more readable
+    return `#${color}cc`;
+  };
+
+  const sortItems = (items: SteamInventoryItem[]) => {
+    return [...items].sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "rarity":
+          if (a.name_color && b.name_color) {
+            return b.name_color.localeCompare(a.name_color);
+          }
+          return a.name_color ? -1 : b.name_color ? 1 : 0;
+        case "type":
+          return a.type.localeCompare(b.type);
+        default:
+          return 0;
+      }
+    });
   };
 
   const gridSizeClass = {
@@ -184,7 +214,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
           {[...Array(12)].map((_, i) => (
             <Card key={i} className="overflow-hidden">
               <div className="relative aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse" />
-              <div className="p-3">
+              <div className="p-2">
                 <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2 w-2/3" />
                 <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/3" />
               </div>
@@ -215,27 +245,40 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
     );
   }
 
+  const sortedItems = sortItems(items);
+
   return (
     <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-end gap-4">
-          <Text variant="body-sm" color="secondary">Grid Size</Text>
-          <div className="w-48">
-            <Slider
-              min={2}
-              max={6}
-              step={1}
-              value={gridSize}
-              onChange={setGridSize}
-            />
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <Select
+            value={sortBy}
+            onChange={(value) => setSortBy(value as SortOption)}
+            options={[
+              { value: "rarity", label: "Sort by Rarity" },
+              { value: "name", label: "Sort by Name" },
+              { value: "type", label: "Sort by Type" },
+            ]}
+          />
+          <div className="flex items-center gap-4">
+            <Text variant="body-sm" color="secondary">Grid Size</Text>
+            <div className="w-48">
+              <Slider
+                min={2}
+                max={6}
+                step={1}
+                value={gridSize}
+                onChange={setGridSize}
+              />
+            </div>
           </div>
         </div>
 
-        <div className={`grid ${gridSizeClass} gap-6`}>
-          {items.map((item) => (
+        <div className={`grid ${gridSizeClass} gap-2`}>
+          {sortedItems.map((item) => (
             <Card
               key={item.assetid}
-              className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border-2 ${getRarityBorder(item)}`}
+              className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border-2 ${getRarityBorder(item)} p-0`}
               onClick={() => setSelectedItem(item)}
             >
               <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
@@ -244,7 +287,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
                     src={getImageUrl(item.icon_url)}
                     alt={item.name}
                     fill
-                    className="object-contain p-4"
+                    className="object-contain p-1"
                     onError={() => handleImageError(item.assetid)}
                     unoptimized
                   />
@@ -254,22 +297,26 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
                   </div>
                 )}
                 {item.tradable === 1 && (
-                  <div className="absolute top-2 right-2">
-                    <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded">
+                  <div className="absolute top-1 right-1">
+                    <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded">
                       Tradable
                     </span>
                   </div>
                 )}
               </div>
-              <div className="p-4 space-y-2">
+              <div className="px-1.5 py-1 space-y-0.5 bg-background/50 backdrop-blur-sm">
                 <Text 
-                  variant="body-sm" 
-                  className="font-medium line-clamp-1"
-                  style={{ color: item.name_color ? `#${item.name_color}` : undefined }}
+                  variant="caption" 
+                  className="font-medium line-clamp-1 leading-tight"
+                  style={{ color: getRarityTextColor(item.name_color) }}
                 >
                   {item.name}
                 </Text>
-                <Text variant="caption" color="secondary" className="line-clamp-1">
+                <Text 
+                  variant="caption" 
+                  color="secondary" 
+                  className="line-clamp-1 text-[10px] leading-tight"
+                >
                   {item.type}
                 </Text>
               </div>
@@ -290,7 +337,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
             <div className="flex items-center justify-between">
               <Text 
                 variant="h3"
-                style={{ color: selectedItem.name_color ? `#${selectedItem.name_color}` : undefined }}
+                style={{ color: getRarityTextColor(selectedItem.name_color) }}
               >
                 {selectedItem.name}
               </Text>
