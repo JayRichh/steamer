@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Card } from "~/components/ui/Card";
 import { Text } from "~/components/ui/Text";
 import { Button } from "~/components/ui/Button";
-import { Modal } from "~/components/ui/Modal";
 import { Slider } from "~/components/ui/Slider";
 import { Select } from "~/components/ui/Select";
 import type { SteamInventoryItem } from "~/types/steam";
@@ -15,11 +14,12 @@ interface InventoryGridProps {
   steamId: string;
   page?: number;
   appId?: string;
+  onSelectItem?: (item: SteamInventoryItem) => void;
 }
 
 type SortOption = "name" | "rarity" | "type";
 
-export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGridProps) {
+export default function InventoryGrid({ steamId, page = 1, appId, onSelectItem }: InventoryGridProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [items, setItems] = useState<SteamInventoryItem[]>([]);
@@ -27,7 +27,6 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedItem, setSelectedItem] = useState<SteamInventoryItem | null>(null);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
   const [gridSize, setGridSize] = useState(4); // Default to 4 columns
   const [sortBy, setSortBy] = useState<SortOption>("rarity");
@@ -84,10 +83,9 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
     setImageError((prev) => ({ ...prev, [assetId]: true }));
   };
 
-  const getImageUrl = (iconUrl: string, large: boolean = false) => {
-    // Use larger sizes for better quality
-    const size = large ? "1024x1024" : "256x256";
-    return `https://community.fastly.steamstatic.com/economy/image/${iconUrl}/${size}`;
+  const getImageUrl = (iconUrl: string) => {
+    // Use larger size for better quality
+    return `https://community.fastly.steamstatic.com/economy/image/${iconUrl}/256x256`;
   };
 
   const getRarityBorder = (item: SteamInventoryItem) => {
@@ -243,145 +241,91 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
   const sortedItems = sortItems(items);
 
   return (
-    <>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <Select
-            value={sortBy}
-            onChange={(value) => setSortBy(value as SortOption)}
-            options={[
-              { value: "rarity", label: "Sort by Rarity" },
-              { value: "name", label: "Sort by Name" },
-              { value: "type", label: "Sort by Type" },
-            ]}
-          />
-          <div className="flex items-center gap-4">
-            <Text variant="body-sm" color="secondary">Grid Size</Text>
-            <div className="w-48">
-              <Slider
-                min={2}
-                max={6}
-                step={1}
-                value={gridSize}
-                onChange={setGridSize}
-              />
-            </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-4">
+        <Select
+          value={sortBy}
+          onChange={(value) => setSortBy(value as SortOption)}
+          options={[
+            { value: "rarity", label: "Sort by Rarity" },
+            { value: "name", label: "Sort by Name" },
+            { value: "type", label: "Sort by Type" },
+          ]}
+        />
+        <div className="flex items-center gap-4">
+          <Text variant="body-sm" color="secondary">Grid Size</Text>
+          <div className="w-48">
+            <Slider
+              min={2}
+              max={6}
+              step={1}
+              value={gridSize}
+              onChange={setGridSize}
+            />
           </div>
         </div>
-
-        {items.length === 0 ? (
-          <Card className="p-6 text-center">
-            <Text className="mb-4">No inventory items found</Text>
-            <Text color="secondary">
-              {appId ? "Try selecting a different game" : "Your Steam inventory appears to be empty"}
-            </Text>
-          </Card>
-        ) : (
-          <div className={`grid ${gridSizeClass} gap-2`}>
-            {sortedItems.map((item) => (
-              <Card
-                key={item.assetid}
-                className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border ${getRarityBorder(item)} p-0`}
-                onClick={() => setSelectedItem(item)}
-              >
-                <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
-                  {!imageError[item.assetid] ? (
-                    <Image
-                      src={getImageUrl(item.icon_url)}
-                      alt={item.name}
-                      fill
-                      className="object-contain"
-                      onError={() => handleImageError(item.assetid)}
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Text color="secondary">Failed to load image</Text>
-                    </div>
-                  )}
-                  {item.tradable === 1 && (
-                    <div className="absolute top-1 right-1">
-                      <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded">
-                        Tradable
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="px-2 py-1.5 space-y-0.5">
-                  <Text 
-                    variant="caption" 
-                    className="font-medium line-clamp-1 leading-tight"
-                    style={{ color: getRarityTextColor(item.name_color) }}
-                  >
-                    {item.name}
-                  </Text>
-                  <Text 
-                    variant="caption" 
-                    color="secondary" 
-                    className="line-clamp-1 text-[10px] leading-tight"
-                  >
-                    {item.type}
-                  </Text>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {totalPages > 1 && renderPagination()}
       </div>
 
-      <Modal
-        isOpen={!!selectedItem}
-        onClose={() => setSelectedItem(null)}
-        title={selectedItem?.name}
-        className="w-full max-w-4xl"
-      >
-        {selectedItem && (
-          <div className="space-y-6">
-            <div className="relative aspect-square max-w-lg mx-auto bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-              <Image
-                src={getImageUrl(selectedItem.icon_url_large || selectedItem.icon_url, true)}
-                alt={selectedItem.name}
-                fill
-                className="object-contain"
-                unoptimized
-              />
-            </div>
-
-            <div className="space-y-4">
-              {selectedItem.descriptions?.map((desc, index) => (
-                <Text 
-                  key={index}
-                  variant="body-sm"
-                  style={{ color: desc.color ? `#${desc.color}` : undefined }}
-                >
-                  {desc.value}
-                </Text>
-              ))}
-
-              <div className="flex flex-wrap gap-4 pt-4">
-                {selectedItem.actions?.map((action) => (
-                  <Button
-                    key={action.name}
-                    onClick={() => window.open(action.link.replace("%assetid%", selectedItem.assetid), "_blank")}
-                  >
-                    {action.name}
-                  </Button>
-                ))}
-                {selectedItem.marketable === 1 && (
-                  <Button
-                    variant="secondary"
-                    onClick={() => window.open(`https://steamcommunity.com/market/listings/753/${selectedItem.market_hash_name}`, "_blank")}
-                  >
-                    View on Steam Market
-                  </Button>
+      {items.length === 0 ? (
+        <Card className="p-6 text-center">
+          <Text className="mb-4">No inventory items found</Text>
+          <Text color="secondary">
+            {appId ? "Try selecting a different game" : "Your Steam inventory appears to be empty"}
+          </Text>
+        </Card>
+      ) : (
+        <div className={`grid ${gridSizeClass} gap-2`}>
+          {sortedItems.map((item) => (
+            <Card
+              key={item.assetid}
+              className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border ${getRarityBorder(item)} p-0`}
+              onClick={() => onSelectItem?.(item)}
+            >
+              <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
+                {!imageError[item.assetid] ? (
+                  <Image
+                    src={getImageUrl(item.icon_url)}
+                    alt={item.name}
+                    fill
+                    className="object-contain"
+                    onError={() => handleImageError(item.assetid)}
+                    unoptimized
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Text color="secondary">Failed to load image</Text>
+                  </div>
+                )}
+                {item.tradable === 1 && (
+                  <div className="absolute top-1 right-1">
+                    <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded">
+                      Tradable
+                    </span>
+                  </div>
                 )}
               </div>
-            </div>
-          </div>
-        )}
-      </Modal>
-    </>
+              <div className="px-2 py-1.5 space-y-0.5">
+                <Text 
+                  variant="caption" 
+                  className="font-medium line-clamp-1 leading-tight"
+                  style={{ color: getRarityTextColor(item.name_color) }}
+                >
+                  {item.name}
+                </Text>
+                <Text 
+                  variant="caption" 
+                  color="secondary" 
+                  className="line-clamp-1 text-[10px] leading-tight"
+                >
+                  {item.type}
+                </Text>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {totalPages > 1 && renderPagination()}
+    </div>
   );
 }
