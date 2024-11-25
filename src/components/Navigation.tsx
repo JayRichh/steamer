@@ -18,6 +18,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", requiresAuth: true },
   { name: "Editor", href: "/editor", requiresAuth: true },
   { name: "Profile", href: "/steam", requiresAuth: true },
+  { name: "Inventory", href: "/inventory", requiresAuth: true },
 ];
 
 export function Navigation() {
@@ -89,9 +90,11 @@ export function Navigation() {
             '/dashboard',
             '/editor',
             '/steam',
+            '/inventory',
             '/api/auth/steam/user',
             '/api/steam/games',
-            '/api/steam/friends'
+            '/api/steam/friends',
+            '/api/steam/inventory'
           ]
         })
       });

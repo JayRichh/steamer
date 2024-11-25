@@ -91,6 +91,48 @@ export interface SteamScreenshot {
   privacy: "public" | "private" | "friends";
 }
 
+export interface SteamInventoryItem {
+  appid: number;
+  contextid: string;
+  assetid: string;
+  classid: string;
+  instanceid: string;
+  amount: string;
+  pos: number;
+  name: string;
+  market_hash_name: string;
+  market_name: string;
+  name_color?: string;
+  background_color?: string;
+  type: string;
+  tradable: number;
+  marketable: number;
+  commodity: number;
+  market_tradable_restriction: number;
+  descriptions: {
+    type: string;
+    value: string;
+    color?: string;
+  }[];
+  actions?: {
+    name: string;
+    link: string;
+  }[];
+  market_actions?: {
+    name: string;
+    link: string;
+  }[];
+  tags: {
+    category: string;
+    internal_name: string;
+    localized_category_name: string;
+    localized_tag_name: string;
+    color?: string;
+  }[];
+  icon_url: string;
+  icon_url_large?: string;
+}
+
 // API Response Types
 export interface SteamPlayerSummary {
   response: {
@@ -171,6 +213,16 @@ export interface SteamGameDetailsResponse {
   news?: GameNews[];
   achievements?: GameAchievement[];
   stats?: GameStats[];
+  error?: string;
+}
+
+export interface SteamInventoryResponse {
+  success: boolean;
+  items: SteamInventoryItem[];
+  total_count: number;
+  page?: number;
+  limit?: number;
+  total_pages?: number;
   error?: string;
 }
 
