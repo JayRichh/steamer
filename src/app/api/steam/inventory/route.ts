@@ -46,6 +46,32 @@ interface SteamDescription {
   }>;
 }
 
+// Clean up icon URLs by removing /economy/ prefix if present
+const cleanIconUrl = (url: string) => url.replace(/^\/economy\//, '');
+
+// Type guard to ensure we have a valid inventory item
+function isValidInventoryItem(item: Partial<SteamInventoryItem>): item is SteamInventoryItem {
+  return !!(
+    item.appid &&
+    item.contextid &&
+    item.assetid &&
+    item.classid &&
+    item.instanceid &&
+    item.amount &&
+    item.name &&
+    item.market_hash_name &&
+    item.market_name &&
+    item.type &&
+    typeof item.tradable === 'number' &&
+    typeof item.marketable === 'number' &&
+    typeof item.commodity === 'number' &&
+    typeof item.market_tradable_restriction === 'number' &&
+    Array.isArray(item.descriptions) &&
+    Array.isArray(item.tags) &&
+    item.icon_url
+  );
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Check if user is authenticated
@@ -63,7 +89,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const steamId = searchParams.get("steamid") || userData.steamid;
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "50");
+    const limit = Math.min(parseInt(searchParams.get("limit") || "100"), 100); // Cap at 100 items
     const appId = searchParams.get("appid"); // Optional game filter
 
     if (!steamId) {
@@ -104,29 +130,37 @@ export async function GET(request: NextRequest) {
     const total = inventoryData.total_inventory_count || 0;
 
     // Merge assets with descriptions
-    let items: SteamInventoryItem[] = assets.map(asset => {
-      const description = descriptions.find(
-        desc => desc.classid === asset.classid && desc.instanceid === asset.instanceid
-      );
-      if (!description) return null;
+    const items: SteamInventoryItem[] = assets
+      .map(asset => {
+        const description = descriptions.find(
+          desc => desc.classid === asset.classid && desc.instanceid === asset.instanceid
+        );
+        if (!description) return null;
 
-      return {
-        ...description,
-        assetid: asset.assetid,
-        amount: asset.amount,
-        contextid: asset.contextid,
-        // Ensure market_hash_name is properly encoded for URLs
-        market_hash_name: encodeURIComponent(description.market_hash_name),
-      };
-    }).filter((item): item is SteamInventoryItem => item !== null);
+        const item: Partial<SteamInventoryItem> = {
+          ...description,
+          assetid: asset.assetid,
+          amount: asset.amount,
+          contextid: asset.contextid,
+          icon_url: cleanIconUrl(description.icon_url),
+          market_hash_name: encodeURIComponent(description.market_hash_name),
+        };
+
+        if (description.icon_url_large) {
+          item.icon_url_large = cleanIconUrl(description.icon_url_large);
+        }
+
+        return isValidInventoryItem(item) ? item : null;
+      })
+      .filter((item): item is SteamInventoryItem => item !== null);
 
     // Filter by appId if provided
-    if (appId) {
-      items = items.filter(item => item.appid.toString() === appId);
-    }
+    const filteredItems = appId 
+      ? items.filter(item => item.appid.toString() === appId)
+      : items;
 
     // Sort items by rarity (name_color), then by name
-    items.sort((a, b) => {
+    filteredItems.sort((a, b) => {
       if (a.name_color && b.name_color) {
         return b.name_color.localeCompare(a.name_color);
       }
@@ -141,7 +175,7 @@ export async function GET(request: NextRequest) {
     const nextStartAssetId = inventoryData.last_assetid;
 
     if (config.isDev) {
-      console.log(`Fetched ${items.length} inventory items for user ${steamId}`);
+      console.log(`Fetched ${filteredItems.length} inventory items for user ${steamId}`);
       if (appId) {
         console.log(`Filtered by appId: ${appId}`);
       }
@@ -150,7 +184,7 @@ export async function GET(request: NextRequest) {
     // Create response with appropriate headers
     const response = NextResponse.json({
       success: true,
-      items,
+      items: filteredItems,
       total_count: total,
       page,
       limit,

@@ -8,6 +8,7 @@ import { Text } from "~/components/ui/Text";
 import { Button } from "~/components/ui/Button";
 import { Modal } from "~/components/ui/Modal";
 import { Progress } from "~/components/ui/Progress";
+import { Slider } from "~/components/ui/Slider";
 import type { SteamInventoryItem } from "~/types/steam";
 
 interface InventoryGridProps {
@@ -25,6 +26,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
   const [totalPages, setTotalPages] = useState(1);
   const [selectedItem, setSelectedItem] = useState<SteamInventoryItem | null>(null);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
+  const [gridSize, setGridSize] = useState(4); // Default to 4 columns
 
   const fetchItems = useCallback(async () => {
     try {
@@ -34,7 +36,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
       const params = new URLSearchParams({
         steamid: steamId,
         page: page.toString(),
-        limit: "50",
+        limit: "100",
       });
 
       if (appId) {
@@ -71,6 +73,18 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
     setImageError((prev) => ({ ...prev, [assetId]: true }));
   };
 
+  const getImageUrl = (iconUrl: string) => {
+    return `https://community.akamai.steamstatic.com/images/${iconUrl}`;
+  };
+
+  const gridSizeClass = {
+    2: "grid-cols-1 sm:grid-cols-2",
+    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+    5: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5",
+    6: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6",
+  }[gridSize];
+
   const renderPagination = () => {
     const pages = [];
     let startPage = Math.max(1, page - 2);
@@ -81,26 +95,26 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
     }
 
     pages.push(
-      <button
+      <Button
         key="prev"
+        variant="ghost"
         onClick={() => handlePageChange(page - 1)}
         disabled={page === 1 || loading}
-        className="px-3 py-2 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800"
       >
         ←
-      </button>
+      </Button>
     );
 
     if (startPage > 1) {
       pages.push(
-        <button
+        <Button
           key={1}
+          variant={page === 1 ? "default" : "ghost"}
           onClick={() => handlePageChange(1)}
           disabled={loading}
-          className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           1
-        </button>
+        </Button>
       );
       if (startPage > 2) {
         pages.push(
@@ -113,18 +127,14 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
 
     for (let i = startPage; i <= endPage; i++) {
       pages.push(
-        <button
+        <Button
           key={i}
+          variant={page === i ? "default" : "ghost"}
           onClick={() => handlePageChange(i)}
           disabled={loading}
-          className={`px-3 py-2 rounded-md text-sm font-medium ${
-            page === i
-              ? "bg-primary text-white"
-              : "hover:bg-gray-100 dark:hover:bg-gray-800"
-          }`}
         >
           {i}
-        </button>
+        </Button>
       );
     }
 
@@ -137,43 +147,45 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
         );
       }
       pages.push(
-        <button
+        <Button
           key={totalPages}
+          variant={page === totalPages ? "default" : "ghost"}
           onClick={() => handlePageChange(totalPages)}
           disabled={loading}
-          className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           {totalPages}
-        </button>
+        </Button>
       );
     }
 
     pages.push(
-      <button
+      <Button
         key="next"
+        variant="ghost"
         onClick={() => handlePageChange(page + 1)}
         disabled={page === totalPages || loading}
-        className="px-3 py-2 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-gray-800"
       >
         →
-      </button>
+      </Button>
     );
 
-    return <div className="flex items-center justify-center space-x-1 mt-6">{pages}</div>;
+    return <div className="flex items-center justify-center gap-2 mt-6">{pages}</div>;
   };
 
   if (loading && items.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
-          <Card key={i} className="overflow-hidden">
-            <div className="relative aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse" />
-            <div className="p-3">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2 w-2/3" />
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/3" />
-            </div>
-          </Card>
-        ))}
+      <div className="space-y-6">
+        <div className={`grid ${gridSizeClass} gap-6`}>
+          {[...Array(12)].map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <div className="relative aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse" />
+              <div className="p-3">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2 w-2/3" />
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/3" />
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -201,7 +213,20 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
   return (
     <>
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex items-center justify-end gap-4">
+          <Text variant="body-sm" color="secondary">Grid Size</Text>
+          <div className="w-48">
+            <Slider
+              min={2}
+              max={6}
+              step={1}
+              value={gridSize}
+              onChange={setGridSize}
+            />
+          </div>
+        </div>
+
+        <div className={`grid ${gridSizeClass} gap-6`}>
           {items.map((item) => (
             <Card
               key={item.assetid}
@@ -211,7 +236,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
               <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
                 {!imageError[item.assetid] ? (
                   <Image
-                    src={`https://community.cloudflare.steamstatic.com/economy/image/${item.icon_url}`}
+                    src={getImageUrl(item.icon_url)}
                     alt={item.name}
                     fill
                     className="object-contain p-4"
@@ -254,11 +279,12 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
           isOpen={true}
           onClose={() => setSelectedItem(null)}
           title={selectedItem.name}
+          className="w-full max-w-4xl"
         >
           <div className="space-y-6">
             <div className="relative aspect-square max-w-md mx-auto">
               <Image
-                src={`https://community.cloudflare.steamstatic.com/economy/image/${selectedItem.icon_url_large || selectedItem.icon_url}`}
+                src={getImageUrl(selectedItem.icon_url_large || selectedItem.icon_url)}
                 alt={selectedItem.name}
                 fill
                 className="object-contain p-4"
