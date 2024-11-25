@@ -42,7 +42,7 @@ src/
 - **UI** - Lucide Icons, CVA
 - **Dev Tools** - TypeScript, ESLint, Prettier
 
-![image](https://github.com/user-attachments/assets/a4e473d7-0387-4d8a-9ac3-9036f577430d)
+![image](https://github.com/user-attachments/assets/1e433768-cf25-4081-bd4d-aa01ecba5a0e)
 
 ![image](https://github.com/user-attachments/assets/77590cd8-6ccd-47e0-be80-24d9839e73c6)
 
