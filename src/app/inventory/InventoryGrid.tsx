@@ -19,6 +19,94 @@ interface InventoryGridProps {
 
 type SortOption = "name" | "rarity" | "type";
 
+const RARITY_COLORS = {
+  // CS2/CSGO Colors
+  "D2D2D2": {
+    border: "border-gray-300 dark:border-gray-600",
+    text: "#D2D2D2", // Consumer Grade (White)
+  },
+  "B0C3D9": {
+    border: "border-blue-200 dark:border-blue-800",
+    text: "#B0C3D9", // Industrial Grade (Light Blue)
+  },
+  "5E98D9": {
+    border: "border-blue-500",
+    text: "#5E98D9", // Mil-spec Grade (Blue)
+  },
+  "4B69FF": {
+    border: "border-blue-600",
+    text: "#4B69FF", // Restricted (Purple-Blue)
+  },
+  "8847FF": {
+    border: "border-purple-600",
+    text: "#8847FF", // Classified (Pink-Purple)
+  },
+  "D32CE6": {
+    border: "border-pink-600",
+    text: "#D32CE6", // Covert (Red-Pink)
+  },
+  "CAAB05": {
+    border: "border-yellow-500",
+    text: "#CAAB05", // Contraband (Gold)
+  },
+  "EB4B4B": {
+    border: "border-red-500",
+    text: "#EB4B4B", // High Grade (Red)
+  },
+  "E4AE39": {
+    border: "border-yellow-400",
+    text: "#E4AE39", // Extraordinary (Gold)
+  },
+  // Dota 2 Colors
+  "B28A33": {
+    border: "border-yellow-600",
+    text: "#B28A33", // Immortal
+  },
+  // TF2 Colors
+  "7D6D00": {
+    border: "border-yellow-700",
+    text: "#7D6D00", // Vintage
+  },
+  "476291": {
+    border: "border-blue-700",
+    text: "#476291", // Genuine
+  },
+} as const;
+
+const cleanColor = (color?: string) => {
+  if (!color) return "";
+  // Remove any # prefix and clean color
+  return color.replace(/^#/, "").toUpperCase();
+};
+
+const getRarityColor = (color?: string) => {
+  if (!color) return "border-border/50";
+  
+  const clean = cleanColor(color);
+  
+  // Check for known rarity colors
+  if (clean in RARITY_COLORS) {
+    return RARITY_COLORS[clean as keyof typeof RARITY_COLORS].border;
+  }
+
+  // For unknown colors, use the color directly with opacity
+  return `border-[#${clean}] border-opacity-70`;
+};
+
+const getRarityTextColor = (color?: string) => {
+  if (!color) return undefined;
+  
+  const clean = cleanColor(color);
+  
+  // For known colors, use predefined text color
+  if (clean in RARITY_COLORS) {
+    return RARITY_COLORS[clean as keyof typeof RARITY_COLORS].text;
+  }
+
+  // For unknown colors, use the color directly
+  return `#${clean}`;
+};
+
 export default function InventoryGrid({ steamId, page = 1, appId, onSelectItem }: InventoryGridProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -89,9 +177,7 @@ export default function InventoryGrid({ steamId, page = 1, appId, onSelectItem }
   };
 
   const getRarityBorder = (item: SteamInventoryItem) => {
-    if (!item.name_color) return "border-border/50";
-    // Add opacity to make colors more visible
-    return `border-[#${item.name_color}] border-opacity-70`;
+    return getRarityColor(item.name_color);
   };
 
   const getRarityTextColor = (color?: string) => {
@@ -239,7 +325,6 @@ export default function InventoryGrid({ steamId, page = 1, appId, onSelectItem }
   }
 
   const sortedItems = sortItems(items);
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
@@ -274,58 +359,58 @@ export default function InventoryGrid({ steamId, page = 1, appId, onSelectItem }
           </Text>
         </Card>
       ) : (
-        <div className={`grid ${gridSizeClass} gap-2`}>
-          {sortedItems.map((item) => (
-            <Card
-              key={item.assetid}
-              className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border ${getRarityBorder(item)} p-0`}
-              onClick={() => onSelectItem?.(item)}
-            >
-              <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
-                {!imageError[item.assetid] ? (
-                  <Image
-                    src={getImageUrl(item.icon_url)}
-                    alt={item.name}
-                    fill
-                    className="object-contain"
-                    onError={() => handleImageError(item.assetid)}
-                    unoptimized
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Text color="secondary">Failed to load image</Text>
-                  </div>
-                )}
-                {item.tradable === 1 && (
-                  <div className="absolute top-1 right-1">
-                    <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded">
-                      Tradable
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="px-2 py-1.5 space-y-0.5">
-                <Text 
-                  variant="caption" 
-                  className="font-medium line-clamp-1 leading-tight"
-                  style={{ color: getRarityTextColor(item.name_color) }}
-                >
-                  {item.name}
-                </Text>
-                <Text 
-                  variant="caption" 
-                  color="secondary" 
-                  className="line-clamp-1 text-[10px] leading-tight"
-                >
-                  {item.type}
-                </Text>
-              </div>
-            </Card>
+      <div className={`grid ${gridSizeClass} gap-2`}>
+        {sortedItems.map((item) => (
+          <Card
+            key={item.assetid}
+            className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border-2 ${getRarityBorder(item)} p-0`}
+            onClick={() => onSelectItem?.(item)}
+          >
+            <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
+              {!imageError[item.assetid] ? (
+                <Image
+                  src={getImageUrl(item.icon_url)}
+                  alt={item.name}
+                  fill
+                  className="object-contain"
+                  onError={() => handleImageError(item.assetid)}
+                  unoptimized
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Text color="secondary">Failed to load image</Text>
+                </div>
+              )}
+              {item.tradable === 1 && (
+                <div className="absolute top-1 right-1">
+                  <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded">
+                    Tradable
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="px-2 py-1.5 space-y-0.5">
+              <Text 
+                variant="caption" 
+                className="font-medium line-clamp-1 leading-tight"
+                style={{ color: getRarityTextColor(item.name_color) }}
+              >
+                {item.name}
+              </Text>
+              <Text 
+                variant="caption" 
+                color="secondary" 
+                className="line-clamp-1 text-[10px] leading-tight"
+              >
+                {item.type}
+              </Text>
+            </div>
+          </Card>
           ))}
-        </div>
-      )}
-
-      {totalPages > 1 && renderPagination()}
-    </div>
-  );
+          </div>
+        )}
+  
+        {totalPages > 1 && renderPagination()}
+      </div>
+    );
 }
