@@ -69,6 +69,34 @@ function isValidInventoryItem(item: Partial<SteamInventoryItem>): item is SteamI
   );
 }
 
+// Get the correct context ID based on app ID
+function getContextId(appId: string | null): string {
+  // Steam Community items use context 6
+  if (!appId || appId === "753") return "6";
+  
+  // Game items use context 2
+  return "2";
+}
+
+// Get the correct app ID for inventory query
+function getInventoryAppId(appId: string | null): string {
+  // If no appId specified, default to Steam Community items
+  if (!appId) return "753";
+  
+  // Special handling for known games
+  switch (appId) {
+    case "730": // CS2/CSGO
+    case "570": // Dota 2
+    case "440": // TF2
+      return appId;
+    default:
+      // For other games, verify it's a valid number
+      const numericAppId = parseInt(appId);
+      if (isNaN(numericAppId)) return "753";
+      return appId;
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Check if user is authenticated
@@ -93,8 +121,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Steam ID required" }, { status: 400 });
     }
 
+    // Get the correct appId and contextId
+    const inventoryAppId = getInventoryAppId(appId);
+    const contextId = getContextId(appId);
+
     // Construct inventory URL
-    const inventoryUrl = new URL(`https://steamcommunity.com/inventory/${steamId}/753/6`);
+    const inventoryUrl = new URL(`https://steamcommunity.com/inventory/${steamId}/${inventoryAppId}/${contextId}`);
     inventoryUrl.searchParams.append("l", "english");
     inventoryUrl.searchParams.append("count", limit.toString());
     
@@ -104,6 +136,11 @@ export async function GET(request: NextRequest) {
       if (startAssetId) {
         inventoryUrl.searchParams.append("start_assetid", startAssetId);
       }
+    }
+
+    if (config.isDev) {
+      console.log(`Fetching inventory from: ${inventoryUrl.toString()}`);
+      console.log(`Using appId: ${inventoryAppId}, contextId: ${contextId}`);
     }
 
     // Fetch inventory
@@ -118,10 +155,17 @@ export async function GET(request: NextRequest) {
     });
 
     if (!inventoryResponse.ok) {
-      throw new Error("Failed to fetch inventory");
+      const errorText = await inventoryResponse.text();
+      throw new Error(`Failed to fetch inventory: ${inventoryResponse.status} - ${errorText}`);
     }
 
     const inventoryData = await inventoryResponse.json();
+
+    // Check for Steam API errors
+    if (inventoryData.error) {
+      throw new Error(`Steam API error: ${inventoryData.error}`);
+    }
+
     const assets: SteamAsset[] = inventoryData.assets || [];
     const descriptions: SteamDescription[] = inventoryData.descriptions || [];
     const total = inventoryData.total_inventory_count || 0;
@@ -166,13 +210,6 @@ export async function GET(request: NextRequest) {
     const hasMore = inventoryData.more_items;
     const nextStartAssetId = inventoryData.last_assetid;
 
-    if (config.isDev) {
-      console.log(`Fetched ${filteredItems.length} inventory items for user ${steamId}`);
-      if (appId) {
-        console.log(`Filtered by appId: ${appId}`);
-      }
-    }
-
     // Create response with appropriate headers
     const response = NextResponse.json({
       success: true,
@@ -183,6 +220,8 @@ export async function GET(request: NextRequest) {
       total_pages: totalPages,
       has_more: hasMore,
       next_start_asset_id: nextStartAssetId,
+      app_id: inventoryAppId,
+      context_id: contextId,
     });
 
     // Set cache control headers

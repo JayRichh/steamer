@@ -22,10 +22,12 @@ export interface SteamGame {
   name: string;
   playtime_forever: number;
   img_icon_url: string;
-  img_logo_url: string;
+  img_logo_url?: string;
   playtime_2weeks?: number;
   has_community_visible_stats: boolean;
   has_leaderboards?: boolean;
+  has_inventory?: boolean;
+  context_id?: string;
   stats?: GameStats;
   achievements?: GameAchievement[];
 }

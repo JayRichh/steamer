@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card } from "~/components/ui/Card";
 import { Text } from "~/components/ui/Text";
 import { Button } from "~/components/ui/Button";
@@ -10,6 +10,7 @@ import { Modal } from "~/components/ui/Modal";
 import { Progress } from "~/components/ui/Progress";
 import { Slider } from "~/components/ui/Slider";
 import { Select } from "~/components/ui/Select";
+import { CategoryFilter } from "~/components/CategoryFilter";
 import type { SteamInventoryItem } from "~/types/steam";
 
 interface InventoryGridProps {
@@ -22,6 +23,7 @@ type SortOption = "name" | "rarity" | "type";
 
 export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGridProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [items, setItems] = useState<SteamInventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,30 +50,49 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
       }
 
       const response = await fetch(`/api/steam/inventory?${params.toString()}`);
-      if (!response.ok) throw new Error("Failed to fetch inventory items");
-
       const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to fetch inventory items");
+      }
+
       setItems(data.items || []);
       setHasMore(data.has_more || false);
       setTotalPages(data.total_pages || 1);
     } catch (err) {
+      console.error("Inventory error:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
+      setItems([]); // Clear items on error
     } finally {
       setLoading(false);
     }
   }, [steamId, page, appId]);
 
-  // Refetch when appId changes
+  // Reset page when appId changes
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("page"); // Reset to page 1
+    if (appId) {
+      params.set("appid", appId);
+    } else {
+      params.delete("appid");
+    }
+    router.push(`/inventory?${params.toString()}`);
+  }, [appId, router, searchParams]);
+
+  // Refetch when page or appId changes
   useEffect(() => {
     fetchItems();
-  }, [fetchItems, appId]);
+  }, [fetchItems, page, appId]);
 
-  const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams();
+  const handlePageChange = useCallback((newPage: number) => {
+    const params = new URLSearchParams(searchParams);
     params.set("page", newPage.toString());
-    if (appId) params.set("appid", appId);
+    if (appId) {
+      params.set("appid", appId);
+    }
     router.push(`/inventory?${params.toString()}`);
-  };
+  }, [searchParams, appId, router]);
 
   const handleImageError = (assetId: string) => {
     console.warn(`Failed to load image for item ${assetId}`);
@@ -209,13 +230,14 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
 
   if (loading && items.length === 0) {
     return (
-      <div className="space-y-6">
-        <div className={`grid ${gridSizeClass} gap-6`}>
+      <div className="space-y-4">
+        <CategoryFilter type="games" steamId={steamId} showSearch={false} showSort={false} />
+        <div className={`grid ${gridSizeClass} gap-2`}>
           {[...Array(12)].map((_, i) => (
             <Card key={i} className="overflow-hidden">
               <div className="relative aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse" />
-              <div className="p-2">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2 w-2/3" />
+              <div className="px-1.5 py-1">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1 w-2/3" />
                 <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/3" />
               </div>
             </Card>
@@ -227,21 +249,13 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
 
   if (error) {
     return (
-      <Card className="p-6 text-center">
-        <Text color="error" className="mb-4">{error}</Text>
-        <Button onClick={() => fetchItems()}>Try Again</Button>
-      </Card>
-    );
-  }
-
-  if (items.length === 0) {
-    return (
-      <Card className="p-6 text-center">
-        <Text className="mb-4">No inventory items found</Text>
-        <Text color="secondary">
-          {appId ? "Try selecting a different game" : "Your Steam inventory appears to be empty"}
-        </Text>
-      </Card>
+      <div className="space-y-4">
+        <CategoryFilter type="games" steamId={steamId} showSearch={false} showSort={false} />
+        <Card className="p-6 text-center">
+          <Text color="error" className="mb-4">{error}</Text>
+          <Button onClick={() => fetchItems()}>Try Again</Button>
+        </Card>
+      </div>
     );
   }
 
@@ -250,6 +264,8 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
   return (
     <>
       <div className="space-y-4">
+        <CategoryFilter type="games" steamId={steamId} showSearch={false} showSort={false} />
+        
         <div className="flex items-center justify-between gap-4">
           <Select
             value={sortBy}
@@ -274,55 +290,64 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
           </div>
         </div>
 
-        <div className={`grid ${gridSizeClass} gap-2`}>
-          {sortedItems.map((item) => (
-            <Card
-              key={item.assetid}
-              className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border-2 ${getRarityBorder(item)} p-0`}
-              onClick={() => setSelectedItem(item)}
-            >
-              <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
-                {!imageError[item.assetid] ? (
-                  <Image
-                    src={getImageUrl(item.icon_url)}
-                    alt={item.name}
-                    fill
-                    className="object-contain p-1"
-                    onError={() => handleImageError(item.assetid)}
-                    unoptimized
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Text color="secondary">Failed to load image</Text>
-                  </div>
-                )}
-                {item.tradable === 1 && (
-                  <div className="absolute top-1 right-1">
-                    <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded">
-                      Tradable
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="px-1.5 py-1 space-y-0.5 bg-background/50 backdrop-blur-sm">
-                <Text 
-                  variant="caption" 
-                  className="font-medium line-clamp-1 leading-tight"
-                  style={{ color: getRarityTextColor(item.name_color) }}
-                >
-                  {item.name}
-                </Text>
-                <Text 
-                  variant="caption" 
-                  color="secondary" 
-                  className="line-clamp-1 text-[10px] leading-tight"
-                >
-                  {item.type}
-                </Text>
-              </div>
-            </Card>
-          ))}
-        </div>
+        {items.length === 0 ? (
+          <Card className="p-6 text-center">
+            <Text className="mb-4">No inventory items found</Text>
+            <Text color="secondary">
+              {appId ? "Try selecting a different game" : "Your Steam inventory appears to be empty"}
+            </Text>
+          </Card>
+        ) : (
+          <div className={`grid ${gridSizeClass} gap-2`}>
+            {sortedItems.map((item) => (
+              <Card
+                key={item.assetid}
+                className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border-2 ${getRarityBorder(item)} p-0`}
+                onClick={() => setSelectedItem(item)}
+              >
+                <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
+                  {!imageError[item.assetid] ? (
+                    <Image
+                      src={getImageUrl(item.icon_url)}
+                      alt={item.name}
+                      fill
+                      className="object-contain p-1"
+                      onError={() => handleImageError(item.assetid)}
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Text color="secondary">Failed to load image</Text>
+                    </div>
+                  )}
+                  {item.tradable === 1 && (
+                    <div className="absolute top-1 right-1">
+                      <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded">
+                        Tradable
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="px-1.5 py-1 space-y-0.5 bg-background/50">
+                  <Text 
+                    variant="caption" 
+                    className="font-medium line-clamp-1 leading-tight"
+                    style={{ color: getRarityTextColor(item.name_color) }}
+                  >
+                    {item.name}
+                  </Text>
+                  <Text 
+                    variant="caption" 
+                    color="secondary" 
+                    className="line-clamp-1 text-[10px] leading-tight"
+                  >
+                    {item.type}
+                  </Text>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {totalPages > 1 && renderPagination()}
       </div>

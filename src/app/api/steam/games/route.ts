@@ -9,6 +9,28 @@ interface EnrichedGame extends SteamGame {
   achievements?: any[];
 }
 
+// Special handling for known games
+const KNOWN_GAMES = {
+  // CS2/CSGO
+  730: {
+    name: "Counter-Strike 2",
+    hasInventory: true,
+    contextId: "2",
+  },
+  // Dota 2
+  570: {
+    name: "Dota 2",
+    hasInventory: true,
+    contextId: "2",
+  },
+  // Team Fortress 2
+  440: {
+    name: "Team Fortress 2",
+    hasInventory: true,
+    contextId: "2",
+  },
+};
+
 async function getGameNews(appId: number): Promise<any[]> {
   try {
     const response = await fetch(
@@ -77,6 +99,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const steamId = searchParams.get("steamid") || userData.steamid;
     const includeDetails = searchParams.get("details") === "true";
+    const inventoryOnly = searchParams.get("inventory_only") === "true";
 
     if (!steamId) {
       return NextResponse.json({ error: "Steam ID required" }, { status: 400 });
@@ -104,8 +127,41 @@ export async function GET(request: NextRequest) {
     const gamesData = await gamesResponse.json();
     let games: SteamGame[] = gamesData.response?.games || [];
 
-    // Sort games by playtime
-    games.sort((a, b) => (b.playtime_2weeks || 0) - (a.playtime_2weeks || 0));
+    // Add Steam Community as a special "game" for inventory
+    games.unshift({
+      appid: 753,
+      name: "Steam Community",
+      playtime_forever: 0,
+      img_icon_url: "",
+      has_community_visible_stats: false,
+      has_inventory: true,
+    });
+
+    // Enrich games with inventory information
+    games = games.map(game => ({
+      ...game,
+      has_inventory: KNOWN_GAMES[game.appid as keyof typeof KNOWN_GAMES]?.hasInventory || false,
+      context_id: KNOWN_GAMES[game.appid as keyof typeof KNOWN_GAMES]?.contextId,
+    }));
+
+    // Filter games if inventory_only is specified
+    if (inventoryOnly) {
+      games = games.filter(game => game.has_inventory);
+    }
+
+    // Sort games by playtime and inventory availability
+    games.sort((a, b) => {
+      // Always put Steam Community first
+      if (a.appid === 753) return -1;
+      if (b.appid === 753) return 1;
+
+      // Then sort by inventory availability
+      if (a.has_inventory && !b.has_inventory) return -1;
+      if (!a.has_inventory && b.has_inventory) return 1;
+
+      // Then by recent playtime
+      return (b.playtime_2weeks || 0) - (a.playtime_2weeks || 0);
+    });
 
     // If details requested, fetch additional info for recently played games
     if (includeDetails) {
@@ -140,6 +196,9 @@ export async function GET(request: NextRequest) {
       console.log(`Fetched ${games.length} games for user ${steamId}`);
       if (includeDetails) {
         console.log("Including additional details for recent games");
+      }
+      if (inventoryOnly) {
+        console.log("Filtered to inventory-enabled games only");
       }
     }
 

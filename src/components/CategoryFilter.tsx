@@ -30,7 +30,7 @@ export function CategoryFilter({
 
   const fetchGames = useCallback(async () => {
     try {
-      const response = await fetch(`/api/steam/games?steamid=${steamId}`);
+      const response = await fetch(`/api/steam/games?steamid=${steamId}&inventory_only=true`);
       if (!response.ok) throw new Error("Failed to fetch games");
       const data = await response.json();
       setGames(data.games || []);
@@ -52,6 +52,8 @@ export function CategoryFilter({
     } else {
       params.delete("appid");
     }
+    // Reset to page 1 when changing games
+    params.delete("page");
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -79,8 +81,13 @@ export function CategoryFilter({
             options={[
               { value: "", label: "All Games" },
               ...games
-                .filter(game => game.playtime_forever > 0)
-                .sort((a, b) => b.playtime_forever - a.playtime_forever)
+                .sort((a, b) => {
+                  // Always put Steam Community first
+                  if (a.appid === 753) return -1;
+                  if (b.appid === 753) return 1;
+                  // Then sort by playtime
+                  return (b.playtime_2weeks || 0) - (a.playtime_2weeks || 0);
+                })
                 .map(game => ({
                   value: game.appid.toString(),
                   label: game.name,
