@@ -1,14 +1,14 @@
 # SteamShare
 
-Steam screenshot management platform with integrated gallery organization and canvas editing. Built with Next.js 14 on the Steam Web API and created using [next-temploot](https://github.com/JayRichh/next-temploot). 
+Steam screenshot and inventory management platform with integrated gallery organization and canvas editing. Built with Next.js 14 on the Steam Web API and created using [next-temploot](https://github.com/JayRichh/next-temploot).
 
 Features seamless Steam authentication, real-time friend activity, and advanced collage creation tools.
 
-
 ## Core Features
 
-- **Steam Integration** - Seamless login, screenshot sync, and friend activity
+- **Steam Integration** - Seamless login, inventory sync, and friend activity
 - **Screenshot Gallery** - Browse and manage your Steam screenshots
+- **Inventory System** - View and filter game items with rarity display
 - **Canvas Editor** - Professional editing tools powered by Fabric.js
 - **Friend System** - View and interact with Steam friends' content
 
@@ -21,6 +21,7 @@ src/
 ├── app/              # Next.js app router
 │   ├── dashboard/    # Screenshot management
 │   ├── editor/      # Canvas editor
+│   ├── inventory/   # Item management
 │   ├── steam/       # Steam integration
 │   └── api/         # API endpoints
 ├── components/       # React components
@@ -53,7 +54,6 @@ npm run dev
 ```
 
 ![image](https://github.com/user-attachments/assets/4ab793f3-eabb-4426-9f1c-996000a735ab)
-
 
 Requires `STEAM_API_KEY` in `.env.local`
 
