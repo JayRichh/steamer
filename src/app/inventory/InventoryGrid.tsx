@@ -7,10 +7,8 @@ import { Card } from "~/components/ui/Card";
 import { Text } from "~/components/ui/Text";
 import { Button } from "~/components/ui/Button";
 import { Modal } from "~/components/ui/Modal";
-import { Progress } from "~/components/ui/Progress";
 import { Slider } from "~/components/ui/Slider";
 import { Select } from "~/components/ui/Select";
-import { CategoryFilter } from "~/components/CategoryFilter";
 import type { SteamInventoryItem } from "~/types/steam";
 
 interface InventoryGridProps {
@@ -68,22 +66,9 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
     }
   }, [steamId, page, appId]);
 
-  // Reset page when appId changes
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    params.delete("page"); // Reset to page 1
-    if (appId) {
-      params.set("appid", appId);
-    } else {
-      params.delete("appid");
-    }
-    router.push(`/inventory?${params.toString()}`);
-  }, [appId, router, searchParams]);
-
-  // Refetch when page or appId changes
   useEffect(() => {
     fetchItems();
-  }, [fetchItems, page, appId]);
+  }, [fetchItems]);
 
   const handlePageChange = useCallback((newPage: number) => {
     const params = new URLSearchParams(searchParams);
@@ -99,7 +84,9 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
     setImageError((prev) => ({ ...prev, [assetId]: true }));
   };
 
-  const getImageUrl = (iconUrl: string, size: string = "96x96f") => {
+  const getImageUrl = (iconUrl: string, large: boolean = false) => {
+    // Use larger sizes for better quality
+    const size = large ? "1024x1024" : "256x256";
     return `https://community.fastly.steamstatic.com/economy/image/${iconUrl}/${size}`;
   };
 
@@ -230,32 +217,26 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
 
   if (loading && items.length === 0) {
     return (
-      <div className="space-y-4">
-        <CategoryFilter type="games" steamId={steamId} showSearch={false} showSort={false} />
-        <div className={`grid ${gridSizeClass} gap-2`}>
-          {[...Array(12)].map((_, i) => (
-            <Card key={i} className="overflow-hidden">
-              <div className="relative aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse" />
-              <div className="px-1.5 py-1">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1 w-2/3" />
-                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/3" />
-              </div>
-            </Card>
-          ))}
-        </div>
+      <div className={`grid ${gridSizeClass} gap-2`}>
+        {[...Array(12)].map((_, i) => (
+          <Card key={i} className="overflow-hidden">
+            <div className="relative aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse" />
+            <div className="px-1.5 py-1">
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1 w-2/3" />
+              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/3" />
+            </div>
+          </Card>
+        ))}
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="space-y-4">
-        <CategoryFilter type="games" steamId={steamId} showSearch={false} showSort={false} />
-        <Card className="p-6 text-center">
-          <Text color="error" className="mb-4">{error}</Text>
-          <Button onClick={() => fetchItems()}>Try Again</Button>
-        </Card>
-      </div>
+      <Card className="p-6 text-center">
+        <Text color="error" className="mb-4">{error}</Text>
+        <Button onClick={() => fetchItems()}>Try Again</Button>
+      </Card>
     );
   }
 
@@ -264,8 +245,6 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
   return (
     <>
       <div className="space-y-4">
-        <CategoryFilter type="games" steamId={steamId} showSearch={false} showSort={false} />
-        
         <div className="flex items-center justify-between gap-4">
           <Select
             value={sortBy}
@@ -302,7 +281,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
             {sortedItems.map((item) => (
               <Card
                 key={item.assetid}
-                className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border-2 ${getRarityBorder(item)} p-0`}
+                className={`overflow-hidden cursor-pointer transform transition-all hover:scale-[1.02] border ${getRarityBorder(item)} p-0`}
                 onClick={() => setSelectedItem(item)}
               >
                 <div className="relative aspect-square bg-gray-100 dark:bg-gray-800">
@@ -311,7 +290,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
                       src={getImageUrl(item.icon_url)}
                       alt={item.name}
                       fill
-                      className="object-contain p-1"
+                      className="object-contain"
                       onError={() => handleImageError(item.assetid)}
                       unoptimized
                     />
@@ -328,7 +307,7 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
                     </div>
                   )}
                 </div>
-                <div className="px-1.5 py-1 space-y-0.5 bg-background/50">
+                <div className="px-2 py-1.5 space-y-0.5">
                   <Text 
                     variant="caption" 
                     className="font-medium line-clamp-1 leading-tight"
@@ -355,25 +334,17 @@ export default function InventoryGrid({ steamId, page = 1, appId }: InventoryGri
       <Modal
         isOpen={!!selectedItem}
         onClose={() => setSelectedItem(null)}
-        className={`w-full max-w-4xl bg-background/95 p-6 border-2 ${selectedItem ? getRarityBorder(selectedItem) : ''}`}
+        title={selectedItem?.name}
+        className="w-full max-w-4xl"
       >
         {selectedItem && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <Text 
-                variant="h3"
-                style={{ color: getRarityTextColor(selectedItem.name_color) }}
-              >
-                {selectedItem.name}
-              </Text>
-            </div>
-
-            <div className="relative aspect-square max-w-md mx-auto">
+            <div className="relative aspect-square max-w-lg mx-auto bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
               <Image
-                src={getImageUrl(selectedItem.icon_url_large || selectedItem.icon_url, "512x512")}
+                src={getImageUrl(selectedItem.icon_url_large || selectedItem.icon_url, true)}
                 alt={selectedItem.name}
                 fill
-                className="object-contain p-4"
+                className="object-contain"
                 unoptimized
               />
             </div>
